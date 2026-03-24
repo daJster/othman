@@ -23,7 +23,7 @@
   ],
   "hosting": {
     "site": "kuttab-othman",
-    "public": "public",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",
