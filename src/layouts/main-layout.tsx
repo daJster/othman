@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
-import { Navbar } from '@/components/navbar';
-import { Footer } from '@/components/footer';
+import { Navbar } from '@/components/Navbar.tsx';
+import { Footer } from '@/components/Footer.tsx';
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -9,9 +9,9 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="flex flex-col">
             <Navbar />
-            <main className="flex-1 pt-16">{children}</main>
+            <main>{children}</main>
             <Footer />
         </div>
     );

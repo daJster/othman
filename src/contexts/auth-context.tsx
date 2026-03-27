@@ -7,13 +7,11 @@ import {
 } from "react"
 import {
   onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  type User,
 } from "firebase/auth"
 import { auth } from "@/firebase"
 import type {UserRole} from "@/types/user.ts";
+import getUserRole from "@/service/user/getUserRole.ts";
+import { login, register, logout } from "@/firebase/auth";
 
 
 export interface AuthUser {
@@ -34,12 +32,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-function getUserRole(_user: User): UserRole {
-  // In a real app, you would fetch the role from Firestore or a custom claim
-  // For now, we'll return "user" as default
-  // You can implement role-based logic based on email or custom claims
-  return "user"
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
@@ -64,18 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => unsubscribe()
   }, [])
-
-  const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password)
-  }
-
-  const register = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password)
-  }
-
-  const logout = async () => {
-    await firebaseSignOut(auth)
-  }
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>

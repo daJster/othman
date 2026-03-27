@@ -1,29 +1,38 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
 
-// Import your translation files (we will create these next)
 import enCommon from './locales/en/common.json';
 import arCommon from './locales/ar/common.json';
 
-i18n.use(LanguageDetector)
+export const LANGUAGES = [
+    { code: "ar", label: "عربية" },
+    { code: "en", label: "English" },
+];
+const DEFAULT_LANG = 'ar';
+
+i18n
     .use(initReactI18next)
     .init({
         resources: {
             en: { common: enCommon },
             ar: { common: arCommon },
         },
-        fallbackLng: 'en',
+        lng: DEFAULT_LANG,
+        fallbackLng: DEFAULT_LANG, //
         ns: ['common'],
         defaultNS: 'common',
         interpolation: {
-            escapeValue: false, // React already safes from xss
+            escapeValue: false,
+        },
+        detection: {
+            order: ['localStorage', 'navigator'],
+            caches: ['localStorage'],
         },
     });
 
 // Listen for language changes to update the document direction (RTL/LTR)
 i18n.on('languageChanged', (lng) => {
-    const dir = lng === 'ar' ? 'rtl' : 'ltr';
+    const dir = lng === DEFAULT_LANG ? 'rtl' : 'ltr';
     document.documentElement.dir = dir;
     document.documentElement.lang = lng;
 });

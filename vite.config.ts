@@ -5,7 +5,10 @@ import path from "path"
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+      react(),
+      tailwindcss()
+  ],
   server: {
     port: 8080,
   },
