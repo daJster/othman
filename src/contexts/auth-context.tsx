@@ -1,73 +1,90 @@
-import {
+import React, {
   createContext,
   useContext,
   useEffect,
   useState,
-  type ReactNode,
-} from "react"
-import {
-  onAuthStateChanged,
-} from "firebase/auth"
-import { auth } from "@/firebase"
-import type {UserRole} from "@/types/user.ts";
-import getUserRole from "@/service/user/getUserRole.ts";
-import { login, register, logout } from "@/firebase/auth";
+} from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/firebase";
+import type {AccountData} from "@/firebase/auth/type.ts";
+import {fetchAccountData} from "@/firebase/auth";
 
+interface AuthContextValue {
+  account: AccountData | null;
+  loading: boolean;
+  error: Error | null;
+}
+const AccountContext = createContext<AuthContextValue | null>(
+    null
+);
 
-export interface AuthUser {
-  uid: string
-  email: string | null
-  displayName: string | null
-  photoURL: string | null
-  role: UserRole
+interface AccountProviderProps {
+  children: React.ReactNode;
 }
 
-interface AuthContextType {
-  user: AuthUser | null
-  isLoading: boolean
-  login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string) => Promise<void>
-  logout: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+export const AuthProvider : React.FC<AccountProviderProps> = ({ children }) => {
+  const [account, setAccount] = useState<AccountData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        const authUser: AuthUser = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL,
-          role: getUserRole(firebaseUser),
-        }
-        setUser(authUser)
-      } else {
-        setUser(null)
-      }
-      setIsLoading(false)
-    })
+    // onAuthStateChanged fires once immediately with the current user,
+    // then again on every sign-in / sign-out.
+    const unsubscribe = onAuthStateChanged(
+        auth,
+        async (firebaseUser) => {
+          setError(null);
 
-    return () => unsubscribe()
-  }, [])
+          if (!firebaseUser) {
+            setAccount(null);
+            setLoading(false);
+            return;
+          }
+
+          try {
+            // Extend auth data with your Firestore profile fields
+            const data = await fetchAccountData(firebaseUser);
+            setAccount(data);
+          } catch (err) {
+            console.error("[AccountProvider] Failed to fetch account data:", err);
+            setError(err instanceof Error ? err : new Error(String(err)));
+            setAccount(null); // account is null on failure
+          } finally {
+            setLoading(false);
+          }
+        },
+        (err) => {
+          // Auth observer itself errored (e.g. network issue)
+          console.error("[AccountProvider] Auth observer error:", err);
+          setError(err);
+          setAccount(null);
+          setLoading(false);
+        }
+    );
+
+
+    return unsubscribe; // Cleans up the listener on unmount
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
-      {children}
-    </AuthContext.Provider>
-  )
+      <AccountContext.Provider value={{ account, loading, error }}>
+        {children}
+      </AccountContext.Provider>
+  );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+// Hook
+
+/**
+ * Access the current account anywhere inside <AccountProvider>.
+ *
+ * @example
+ * const { account, loading, error } = useAccount();
+ */
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AccountContext);
+  if (!ctx) {
+    throw new Error("useAccount must be used within an <AuthProvider>");
   }
-  return context
+  return ctx;
 }

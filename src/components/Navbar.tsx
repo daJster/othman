@@ -1,29 +1,25 @@
 import {useState, useEffect, useRef} from "react"
 import { useTranslation } from "react-i18next"
-import { useNavigate } from "react-router"
 import { cn } from "@/lib/utils"
-import { useAuth } from "@/contexts"
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider, TooltipTrigger,
+  TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import {createDefaultNavConfig} from "@/data/configData.ts";
-import {SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar.tsx";
+import {useSidebar} from "@/components/ui/sidebar.tsx";
 import LanguageToggle from "@/components/utils/LanguageToggle.tsx";
 import ThemeToggle from "@/components/utils/ThemeToggle.tsx";
 import SideMenu from "@/components/utils/SideMenu.tsx";
+import {MenuIcon} from "lucide-react";
 interface NavbarProps {
   className?: string
 }
 
 export function Navbar({ className }: NavbarProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const { user, logout } = useAuth()
   const [isVisible, setIsVisible] = useState(true)
-  const navConfig = createDefaultNavConfig()
+  const {toggleSidebar} = useSidebar()
 
   const lastScrollY = useRef(0)
 
@@ -53,21 +49,7 @@ export function Navbar({ className }: NavbarProps) {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const handleLogout = async () => {
-    try {
-      await logout()
-      navigate("/")
-    } catch (error) {
-      console.error("Logout failed:", error)
-    }
-  }
-
-  const role = user?.role || "guest"
-  const navItems = navConfig[role] || navConfig.guest
-
   return (
-    <SidebarProvider>
-    <TooltipProvider>
       <nav
           className={cn(
               "fixed top-0 left-0 right-0 z-50 h-14",
@@ -77,7 +59,7 @@ export function Navbar({ className }: NavbarProps) {
               className
           )}
       >
-        <div className="container h-full mx-auto px-4 max-w-6xl ">
+        <div className="container h-full mx-auto px-4 max-w-6xl">
           <div className="flex items-center justify-between h-full">
             {/* Logo */}
             <div className="flex items-center gap-2">
@@ -101,30 +83,27 @@ export function Navbar({ className }: NavbarProps) {
               <ThemeToggle />
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <SidebarTrigger className={"flex p-5 bg-gray-50 text-neutral-700 cursor-pointer"}/>
+                  <button
+                      onClick={toggleSidebar}
+                      className={"flex p-2 gap-2 bg-gray-50 text-neutral-700 dark:text-white dark:bg-green-800 cursor-pointer  items-center rtl:flex-row-reverse"}
+                  >
+                    <MenuIcon className="h-5 w-5" />
+                    <p className={"hidden md:flex"}>Menu</p>
+                  </button>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>{t("nav.menuTooltip")}</p>
                 </TooltipContent>
               </Tooltip>
 
-
-              {/* User Menu */}
-              {user && (
-                <></>
-              )}
-
               {/* Navigation */}
               <SideMenu
                   title={t('app.name')}
-                  navItems={navItems}
                   variant={'floating'}
               />
             </div>
           </div>
         </div>
       </nav>
-    </TooltipProvider>
-    </SidebarProvider>
   )
 }

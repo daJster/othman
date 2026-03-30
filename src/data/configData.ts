@@ -1,5 +1,5 @@
 import type {ForwardRefExoticComponent, RefAttributes} from "react";
-import {BookOpen, ExternalLink, type LucideProps, MessageCircle} from "lucide-react";
+import {BookOpen, CircleQuestionMarkIcon, ExternalLink, type LucideProps, MessageCircle} from "lucide-react";
 
 export interface NavItem {
     title: string
@@ -23,10 +23,10 @@ export const createDefaultNavConfig: () => NavConfig = () => {
     return {
         guest: [
             { title: "nav.home", href: "/" },
-            { title: "nav.quran", href: "/quran" },
+            { title: "nav.meetings", href: "/kuttab" },
             { title: "nav.books", children: [
-                { title: "nav.allBooks", href: "/books", description: "nav.booksDesc" },
-                { title: "nav.favorites", href: "/favorites", description: "nav.favoritesDesc" },
+                { title: "nav.quran.hafs", href: "/quran/hafs", description: "nav.quran.hafsDesc" },
+                { title: "nav.quran.warsh", href: "/quran/warsh", description: "nav.quran.warshDesc" },
             ]},
         ],
         user: [
@@ -48,10 +48,43 @@ export const createDefaultNavConfig: () => NavConfig = () => {
     }
 }
 
-export const createHelpNavConfig: () => NavItem[] = () => {
+export const createHelpNavConfig: () => NavItem = () => {
+    return {
+        Icon: CircleQuestionMarkIcon,
+        title: "help & documentation",
+        children : [
+            {
+                Icon: BookOpen,
+                title: "help.doc",
+                href: "/docs"
+            },
+            {
+                Icon: MessageCircle,
+                title: "help.contact",
+                href: "/support"
+            },
+            {
+                Icon: ExternalLink,
+                title: "help.news",
+                href: "/changelog"
+            },
+        ]
+    };
+}
+
+export const createPhoneExtensionList = () => {
     return [
-        { Icon: BookOpen, title: "Documentation", href: "/docs" },
-        { Icon: MessageCircle, title: "Contact support", href: "/support" },
-        { Icon: ExternalLink, title: "What's new", href: "/changelog" },
+        {
+            name: "France",
+            iso: "FR",
+            dialCode: "+33",
+            flag: "🇫🇷",
+        },
+        {
+            name: "Morocco",
+            iso: "MA",
+            dialCode: "+212",
+            flag: "🇲🇦",
+        }
     ];
 }

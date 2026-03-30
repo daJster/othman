@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
+import {type ReactNode} from 'react';
 
 import { Navbar } from '@/components/Navbar.tsx';
 import { Footer } from '@/components/Footer.tsx';
+import {SidebarProvider} from "@/components/ui/sidebar.tsx";
+import {TooltipProvider} from "@/components/ui/tooltip.tsx";
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -9,10 +11,14 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
     return (
-        <div className="flex flex-col">
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-        </div>
+        <SidebarProvider defaultOpen={false}>
+        <TooltipProvider>
+            <div className="flex flex-col w-full">
+                <Navbar />
+                <main>{children}</main>
+                <Footer />
+            </div>
+        </TooltipProvider>
+        </SidebarProvider>
     );
 }

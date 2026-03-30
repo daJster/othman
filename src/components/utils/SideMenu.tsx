@@ -13,13 +13,18 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import type {NavItem} from "@/data/configData.ts";
+import {createDefaultNavConfig, createHelpNavConfig, type NavItem} from "@/data/configData.ts";
 import React from "react";
-import {HelpSection, NavItemRow} from "@/components/utils/SideMenuUtils.tsx";
+import {NavItemRow} from "@/components/utils/SideMenuUtils.tsx";
+import {useAuth} from "@/contexts";
+import {Avatar, AvatarBadge, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
+import {Card, CardContent} from "@/components/ui/card.tsx";
+import {Button} from "@/components/ui/button.tsx";
+import {useTranslation} from "react-i18next";
+import {LogOutIcon} from "lucide-react";
 
 export interface SidebarWrapperProps {
     title?: string
-    navItems?: NavItem[]
     showCloseButton?: boolean
     variant?: 'sidebar' | 'floating'
     className?: string
@@ -27,16 +32,46 @@ export interface SidebarWrapperProps {
 
 const SideMenu: React.FC<SidebarWrapperProps> = ({
     title = '',
-    navItems = [],
     variant = 'floating',
     className = '',
 }) => {
     const maxTitleLength = 20
     const isLong = title.length > maxTitleLength
+    const navigate = (path: string) => {window.location.href = path;}
+    const { t } = useTranslation()
+    const { account } = useAuth()
+    const navConfig = createDefaultNavConfig()
+    const helpNavConfig = createHelpNavConfig()
+
+    const role = account?.role || "guest"
+    const navItems: NavItem[] = navConfig[role] || navConfig.guest
+
+    const AuthToggle = () => (
+        <div className="flex w-full items-center gap-3 justify-center">
+            <Button
+                onClick={() => navigate("/signin")}
+                className={`flex-1 h-10 rounded-xl transition bg-white text-black shadow-sm`}
+            >
+                <p>{t('action.signinRedirect')}</p>
+            </Button>
+        </div>
+    )
+
+    const LogoutToggle = () => (
+        <div className="flex w-full items-center gap-3 rtl:flex-row-reverse justify-end">
+            <Button
+                onClick={() => navigate("/logout")}
+                className={`flex gap-2 rounded-md transition py-5 bg-white text-black shadow-sm`}
+            >
+                <p>{t('action.logout')}</p>
+                <LogOutIcon/>
+            </Button>
+        </div>
+    )
 
     return (
         <div
-            className={`absolute top-15 left-0 h-full  transition-all border-none duration-300 ease-in-out ${className}`}
+            className={`absolute top-15 left-0 h-full transition-all border-none duration-300 ease-in-out ${className}`}
         >
             <Sidebar
                 variant={variant}
@@ -44,8 +79,8 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
                     'relative w-full h-full p-2 duration-400 ease-in-out'
                 )}
             >
-                <SidebarContent className="h-full dark:bg-green-800/30">
-                    <SidebarGroup>
+                <SidebarContent className="flex flex-col justify-between h-full dark:bg-green-800/30">
+                    <SidebarGroup className={"flex flex-col gap-2"}>
                         <SidebarGroupLabel className="flex flex-row justify-between w-full">
                             {isLong ? (
                                 <Tooltip>
@@ -64,17 +99,29 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
                                 </span>
                             )}
                         </SidebarGroupLabel>
+                        <Card className="flex flex-row justify-start w-full rtl:flex-row-reverse">
+                            <CardContent className="flex flex-row justify-between w-full">
+                                {account ? (
+                                    <Avatar>
+                                        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                                        <AvatarFallback>CN</AvatarFallback>
+                                        <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+                                    </Avatar>
+                                ) : (
+                                    <AuthToggle/>
+                                )}
+                            </CardContent>
+                        </Card>
                         <SidebarGroupContent>
                             <SidebarMenu>
-                                {navItems.map((item) => (
+                                {[...navItems, helpNavConfig].map((item) => (
                                     <NavItemRow item={item} />
                                 ))}
-                                <HelpSection />
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
                     <SidebarFooter>
-                        logout
+                        <LogoutToggle />
                     </SidebarFooter>
                 </SidebarContent>
             </Sidebar>
