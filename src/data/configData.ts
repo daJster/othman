@@ -88,3 +88,37 @@ export const createPhoneExtensionList = () => {
         }
     ];
 }
+
+export const createMeetingStatusConfig = () => {
+    return {
+        soon: {
+            label: "Starting soon",
+            classes:
+                "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+            dot: "bg-emerald-500 animate-pulse",
+        },
+        upcoming: {
+            label: "Today",
+            classes:
+                "bg-blue-100 text-blue-700 dark:bg-neutral-950 dark:text-neutral-400 border-neutral-200 dark:border-neutral-800",
+            dot: "bg-blue-500",
+        },
+        scheduled: {
+            label: "Scheduled",
+            classes:
+                "bg-slate-100 text-slate-600 dark:bg-neutral-800 dark:text-neutral-400 border-slate-200 dark:border-neutral-700",
+            dot: "bg-slate-400",
+        },
+    };
+}
+
+export const createAttendeeListConfig = () => {
+    return {
+        maxVisible: 4,
+        avatarSize: "h-6 w-6",
+        avatarBorder: "border-2 border-white dark:border-neutral-900",
+        avatarRing: "ring-0 cursor-default",
+        fallbackClass: "text-[9px] font-semibold bg-slate-200 dark:bg-neutral-700 text-neutral-600 dark:text-slate-300",
+        extraCountClass: "flex h-6 w-6 items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 bg-slate-100 dark:bg-neutral-700 text-[9px] font-semibold text-slate-500 dark:text-slate-400",
+    };
+}
