@@ -1,29 +1,42 @@
-import { Calendar } from "@/components/ui/calendar"
-import { Card, CardContent } from "@/components/ui/card"
-import {useState} from "react";
-import { arSA, enUS } from "react-day-picker/locale"
-import {useTranslation} from "react-i18next";
-import {MeetingsList} from "@/pages/meetings/components/MeetingsList.tsx";
+import { Calendar } from '@/components/ui/calendar';
+import { Card, CardContent } from '@/components/ui/card';
+import { useState } from 'react';
+import { arSA, enUS } from 'react-day-picker/locale';
+import { useTranslation } from 'react-i18next';
+import { MeetingsList } from '@/pages/meetings/components/MeetingsList.tsx';
+import { useMeetingsContext } from '@/hooks/use-meetings.ts';
+import { format } from 'date-fns';
+import { ar, enUS as en } from 'date-fns/locale';
 
 const locales = {
     ar: arSA,
     en: enUS,
-} as const
+} as const;
 
 export const MeetingsPage = () => {
-    const {t, i18n} = useTranslation()
-    const [date, setDate] = useState<Date | undefined>(
-        new Date(new Date().getFullYear(), 1, 3)
-    )
-    // const SelectedCalendar = i18n.language === "ar" ? HijriCalendar : Calendar
+    const { t, i18n } = useTranslation();
+    const { selectedDate, fetchMeetings, meetings } = useMeetingsContext();
+    const [date, setDate] = useState<Date | undefined>(selectedDate);
+
     const bookedDates = Array.from(
         { length: 15 },
         (_, i) => new Date(new Date().getFullYear(), 1, 12 + i)
-    )
+    );
+
+    const handleDateSelect = (newDate: Date | undefined) => {
+        setDate(newDate);
+        if (newDate) {
+            fetchMeetings(newDate);
+        }
+    };
+
+    const formatSelectedDate = () => {
+        const locale = i18n.language === 'ar' ? ar : en;
+        return format(selectedDate, 'EEEE, MMMM d, yyyy', { locale });
+    };
 
     return (
         <div className="flex flex-col mt-14 items-center justify-start min-h-screen text-black dark:bg-green-900">
-            {/* Header */}
             <div className="space-y-1 flex flex-col items-center justify-start pt-10">
                 <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-slate-50">
                     {t('page.meetings.header.title')}
@@ -40,19 +53,24 @@ export const MeetingsPage = () => {
                             mode="single"
                             defaultMonth={date}
                             selected={date}
-                            onSelect={setDate}
+                            onSelect={handleDateSelect}
                             disabled={bookedDates}
-
                             dir={i18n.dir()}
                             locale={
-                                i18n.dir() === "rtl" ? locales[i18n.language as keyof typeof locales] : undefined
+                                i18n.dir() === 'rtl'
+                                    ? locales[
+                                          i18n.language as keyof typeof locales
+                                      ]
+                                    : undefined
                             }
-                            className={"rounded-lg [--cell-size:2.75rem] md:[--cell-size:3rem]"}
+                            className={
+                                'rounded-lg [--cell-size:2.75rem] md:[--cell-size:3rem]'
+                            }
                             modifiers={{
                                 booked: bookedDates,
                             }}
                             modifiersClassNames={{
-                                booked: "[&>button]:line-through opacity-100",
+                                booked: '[&>button]:line-through opacity-100',
                             }}
                         />
                     </CardContent>
@@ -60,8 +78,8 @@ export const MeetingsPage = () => {
             </div>
 
             <div className="px-5 w-full">
-                <MeetingsList />
+                <MeetingsList meetings={meetings} />
             </div>
         </div>
-    )
-}
+    );
+};

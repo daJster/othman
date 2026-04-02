@@ -16,12 +16,12 @@ import {
 import {createDefaultNavConfig, createHelpNavConfig, type NavItem} from "@/data/configData.ts";
 import React from "react";
 import {NavItemRow} from "@/components/utils/SideMenuUtils.tsx";
-import {useAuth} from "@/contexts";
 import {Avatar, AvatarBadge, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
 import {Card, CardContent} from "@/components/ui/card.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {useTranslation} from "react-i18next";
 import {LogOutIcon} from "lucide-react";
+import { useAuth } from '@/hooks/use-auth';
 
 export interface SidebarWrapperProps {
     title?: string
