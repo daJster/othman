@@ -22,7 +22,7 @@ export const NavItemRow = ({
     item: NavItem;
 })=> {
     const [open, setOpen] = useState(false);
-    const navigate = (path: string) => {window.location.href = path;}
+    const navigate = (path: string) => {window.location.href = path}
     const renderNavItem = (item: NavItem) => {
 
         if (item.href) {

@@ -1,23 +1,11 @@
 import type { Meeting } from '@/types';
-import meetingsData from '@/data/mock/MeetingsMock.json';
-
-type FetchMeetingsCallback = (date: string) => Promise<Meeting[]>;
-
-type FetchMeetingsErrorCallback = (error: Error) => void;
+import {
+    fetchMeetingsImpl,
+    type FetchMeetingsCallback,
+    type FetchMeetingsErrorCallback,
+} from './db/fetchMeetings';
 
 const meetingsCache = new Map<string, Meeting[]>();
-
-const defaultFetchMeetings: FetchMeetingsCallback = async (date: string) => {
-    const allMeetings = meetingsData.meetings as Meeting[];
-    const filtered = allMeetings.filter((m) => m.date === date);
-    return filtered;
-};
-
-let fetchMeetingsImpl: FetchMeetingsCallback = defaultFetchMeetings;
-
-export const setMeetingsFetchFunction = (fn: FetchMeetingsCallback): void => {
-    fetchMeetingsImpl = fn;
-};
 
 export const getMeetingsFromCache = (date: string): Meeting[] | undefined => {
     return meetingsCache.get(date);

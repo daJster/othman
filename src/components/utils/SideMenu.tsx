@@ -6,28 +6,37 @@ import {
     SidebarGroupContent,
     SidebarMenu,
     SidebarFooter,
-} from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {createDefaultNavConfig, createHelpNavConfig, type NavItem} from "@/data/configData.ts";
-import React from "react";
-import {NavItemRow} from "@/components/utils/SideMenuUtils.tsx";
-import {Avatar, AvatarBadge, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
-import {Card, CardContent} from "@/components/ui/card.tsx";
-import {Button} from "@/components/ui/button.tsx";
-import {useTranslation} from "react-i18next";
-import {LogOutIcon} from "lucide-react";
+} from '@/components/ui/tooltip';
+import {
+    createDefaultNavConfig,
+    createHelpNavConfig,
+    type NavItem,
+} from '@/data/configData.ts';
+import React from 'react';
+import { NavItemRow } from '@/components/utils/SideMenuUtils.tsx';
+import {
+    Avatar,
+    AvatarBadge,
+    AvatarFallback,
+    AvatarImage,
+} from '@/components/ui/avatar.tsx';
+import { Card, CardContent } from '@/components/ui/card.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { useTranslation } from 'react-i18next';
+import { LogOutIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
 export interface SidebarWrapperProps {
-    title?: string
-    showCloseButton?: boolean
-    variant?: 'sidebar' | 'floating'
-    className?: string
+    title?: string;
+    showCloseButton?: boolean;
+    variant?: 'sidebar' | 'floating';
+    className?: string;
 }
 
 const SideMenu: React.FC<SidebarWrapperProps> = ({
@@ -35,39 +44,41 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
     variant = 'floating',
     className = '',
 }) => {
-    const maxTitleLength = 20
-    const isLong = title.length > maxTitleLength
-    const navigate = (path: string) => {window.location.href = path;}
-    const { t } = useTranslation()
-    const { account } = useAuth()
-    const navConfig = createDefaultNavConfig()
-    const helpNavConfig = createHelpNavConfig()
+    const maxTitleLength = 20;
+    const isLong = title.length > maxTitleLength;
+    const navigate = (path: string) => {
+        window.location.href = path;
+    };
+    const { t } = useTranslation();
+    const { account } = useAuth();
+    const navConfig = createDefaultNavConfig();
+    const helpNavConfig = createHelpNavConfig();
 
-    const role = account?.role || "guest"
-    const navItems: NavItem[] = navConfig[role] || navConfig.guest
+    const role = account?.role || 'guest';
+    const navItems: NavItem[] = navConfig[role] || navConfig.guest;
 
     const AuthToggle = () => (
         <div className="flex w-full items-center gap-3 justify-center">
             <Button
-                onClick={() => navigate("/signin")}
+                onClick={() => navigate('/signin')}
                 className={`flex-1 h-10 rounded-xl transition bg-white text-black shadow-sm`}
             >
                 <p>{t('action.signinRedirect')}</p>
             </Button>
         </div>
-    )
+    );
 
     const LogoutToggle = () => (
-        <div className="flex w-full items-center gap-3 rtl:flex-row-reverse justify-end">
+        <div className="flex w-full items-center gap-3 flex-row-reverse justify-end">
             <Button
-                onClick={() => navigate("/logout")}
+                onClick={() => navigate('/logout')}
                 className={`flex gap-2 rounded-md transition py-5 bg-white text-black shadow-sm`}
             >
                 <p>{t('action.logout')}</p>
-                <LogOutIcon/>
+                <LogOutIcon />
             </Button>
         </div>
-    )
+    );
 
     return (
         <div
@@ -80,7 +91,7 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
                 )}
             >
                 <SidebarContent className="flex flex-col justify-between h-full dark:bg-green-800/30">
-                    <SidebarGroup className={"flex flex-col gap-2"}>
+                    <SidebarGroup className={'flex flex-col gap-2'}>
                         <SidebarGroupLabel className="flex flex-row justify-between w-full">
                             {isLong ? (
                                 <Tooltip>
@@ -99,23 +110,26 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
                                 </span>
                             )}
                         </SidebarGroupLabel>
-                        <Card className="flex flex-row justify-start w-full rtl:flex-row-reverse">
+                        <Card className="flex flex-row justify-start w-full">
                             <CardContent className="flex flex-row justify-between w-full">
                                 {account ? (
                                     <Avatar>
-                                        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                                        <AvatarImage
+                                            src="https://github.com/shadcn.png"
+                                            alt="@shadcn"
+                                        />
                                         <AvatarFallback>CN</AvatarFallback>
                                         <AvatarBadge className="bg-green-600 dark:bg-green-800" />
                                     </Avatar>
                                 ) : (
-                                    <AuthToggle/>
+                                    <AuthToggle />
                                 )}
                             </CardContent>
                         </Card>
                         <SidebarGroupContent>
                             <SidebarMenu>
                                 {[...navItems, helpNavConfig].map((item) => (
-                                    <NavItemRow item={item} />
+                                    <NavItemRow key={item.title} item={item} />
                                 ))}
                             </SidebarMenu>
                         </SidebarGroupContent>
@@ -126,7 +140,7 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
                 </SidebarContent>
             </Sidebar>
         </div>
-    )
-}
+    );
+};
 
-export default SideMenu
+export default SideMenu;

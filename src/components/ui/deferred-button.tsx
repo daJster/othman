@@ -15,7 +15,7 @@ type ButtonVariant =
     | 'ghost'
     | 'destructive'
     | 'link';
-    
+
 type ButtonSize =
     | 'default'
     | 'xs'
@@ -79,7 +79,6 @@ export function DeferredButton({
             {loading ? (
                 <span className="flex items-center justify-center gap-2">
                     {loadingSpinner ?? <Spinner />}
-                    {children}
                 </span>
             ) : (
                 children

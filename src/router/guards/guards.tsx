@@ -1,41 +1,40 @@
-import {useTranslation} from "react-i18next";
-import {useParams} from "react-router-dom";
-import {Button} from "@/components/ui/button.tsx";
-import {ArrowLeftCircle} from "lucide-react";
-
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button.tsx';
+import { ArrowLeftCircle } from 'lucide-react';
 
 const errorMessages: Record<string, { title: string; description: string }> = {
-    "400": {
-        title: "error.badRequest.title",
-        description: "error.badRequest.description",
+    '400': {
+        title: 'error.badRequest.title',
+        description: 'error.badRequest.description',
     },
-    "401": {
-        title: "error.unauthorized.title",
-        description: "error.unauthorized.description",
+    '401': {
+        title: 'error.unauthorized.title',
+        description: 'error.unauthorized.description',
     },
-    "403": {
-        title: "error.forbidden.title",
-        description: "error.forbidden.description",
+    '403': {
+        title: 'error.forbidden.title',
+        description: 'error.forbidden.description',
     },
-    "404": {
-        title: "error.pageNotFound.title",
-        description: "error.pageNotFound.description",
+    '404': {
+        title: 'error.pageNotFound.title',
+        description: 'error.pageNotFound.description',
     },
-    "500": {
-        title: "error.serverError.title",
-        description: "error.serverError.description",
+    '500': {
+        title: 'error.serverError.title',
+        description: 'error.serverError.description',
     },
 };
 
-export const ErrorGuardPage= () => {
-    const { t } = useTranslation()
-    const { code } = useParams<{ code: string }>()
+export const ErrorGuardPage = () => {
+    const { t } = useTranslation();
+    const { code } = useParams<{ code: string }>();
 
-    const safeCode = code || '500'
+    const safeCode = code || '500';
 
     const error = errorMessages[safeCode] || {
-        title: "Unexpected Error",
-        description: "An unexpected error occurred.",
+        title: 'Unexpected Error',
+        description: 'An unexpected error occurred.',
     };
 
     return (
@@ -48,8 +47,8 @@ export const ErrorGuardPage= () => {
                 <p className="mt-2 text-gray-600">{t(error.description)}</p>
 
                 <Button
-                    onClick={() => window.location.href = "/"}
-                    className="flex gap-2 items-center mt-6 px-5 py-5 rounded-2xl bg-black text-white text-sm hover:bg-gray-800 transition rtl:flex-row-reverse "
+                    onClick={() => (window.location.href = '/')}
+                    className="flex gap-2 items-center mt-6 px-5 py-5 rounded-2xl bg-black text-white text-sm hover:bg-gray-800 transition flex-row-reverse"
                 >
                     <ArrowLeftCircle />
                     <p>{t('action.goBackHome')}</p>

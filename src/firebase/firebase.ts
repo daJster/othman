@@ -3,6 +3,8 @@ import { getAuth } from 'firebase/auth';
 import { getAnalytics } from 'firebase/analytics';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
+import { GoogleAuthProvider } from 'firebase/auth';
+import { FacebookAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -22,5 +24,9 @@ export const auth = getAuth(FirebaseApp);
 export const db = getFirestore(FirebaseApp);
 export const analytics = getAnalytics(FirebaseApp);
 export const functions = getFunctions(FirebaseApp);
+
+// Auth Providers
+export const googleProvider = new GoogleAuthProvider();
+export const facebookProvider = new FacebookAuthProvider();
 
 export default FirebaseApp;
