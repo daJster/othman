@@ -7,7 +7,7 @@ import {
     SidebarMenu,
     SidebarFooter,
 } from '@/components/ui/sidebar';
-import { cn } from '@/lib/utils';
+import { cn, fullNavigate } from '@/lib/utils';
 import {
     Tooltip,
     TooltipContent,
@@ -20,14 +20,8 @@ import {
 } from '@/data/configData.ts';
 import React from 'react';
 import { NavItemRow } from '@/components/utils/SideMenuUtils.tsx';
-import {
-    Avatar,
-    AvatarBadge,
-    AvatarFallback,
-    AvatarImage,
-} from '@/components/ui/avatar.tsx';
-import { Card, CardContent } from '@/components/ui/card.tsx';
 import { Button } from '@/components/ui/button.tsx';
+import { AccountCard } from '@/components/ui/account-card.tsx';
 import { useTranslation } from 'react-i18next';
 import { LogOutIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
@@ -46,9 +40,6 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
 }) => {
     const maxTitleLength = 20;
     const isLong = title.length > maxTitleLength;
-    const navigate = (path: string) => {
-        window.location.href = path;
-    };
     const { t } = useTranslation();
     const { account } = useAuth();
     const navConfig = createDefaultNavConfig();
@@ -60,7 +51,7 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
     const AuthToggle = () => (
         <div className="flex w-full items-center gap-3 justify-center">
             <Button
-                onClick={() => navigate('/signin')}
+                onClick={() => fullNavigate('/signin')}
                 className={`flex-1 h-10 rounded-xl transition bg-white text-black shadow-sm`}
             >
                 <p>{t('action.signinRedirect')}</p>
@@ -69,10 +60,10 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
     );
 
     const LogoutToggle = () => (
-        <div className="flex w-full items-center gap-3 flex-row-reverse justify-end">
+        <div className="flex w-full items-center gap-3 justify-end">
             <Button
-                onClick={() => navigate('/logout')}
-                className={`flex gap-2 rounded-md transition py-5 bg-white text-black shadow-sm`}
+                onClick={() => fullNavigate('/logout')}
+                className={`flex gap-2 rounded-md transition py-5 bg-red-500 dark:bg-red-500/60 dark:text-white text-black shadow-sm`}
             >
                 <p>{t('action.logout')}</p>
                 <LogOutIcon />
@@ -110,24 +101,13 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
                                 </span>
                             )}
                         </SidebarGroupLabel>
-                        <Card className="flex flex-row justify-start w-full">
-                            <CardContent className="flex flex-row justify-between w-full">
-                                {account ? (
-                                    <Avatar>
-                                        <AvatarImage
-                                            src="https://github.com/shadcn.png"
-                                            alt="@shadcn"
-                                        />
-                                        <AvatarFallback>CN</AvatarFallback>
-                                        <AvatarBadge className="bg-green-600 dark:bg-green-800" />
-                                    </Avatar>
-                                ) : (
-                                    <AuthToggle />
-                                )}
-                            </CardContent>
-                        </Card>
+                        {account ? (
+                            <AccountCard account={account} />
+                        ) : (
+                            <AuthToggle />
+                        )}
                         <SidebarGroupContent>
-                            <SidebarMenu>
+                            <SidebarMenu className='space-y-1'>
                                 {[...navItems, helpNavConfig].map((item) => (
                                     <NavItemRow key={item.title} item={item} />
                                 ))}

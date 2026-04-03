@@ -13,6 +13,7 @@ import {
 import { checkAccountExists } from '@/firebase/db/fetchAccount';
 import { login } from '@/firebase/auth/auth';
 import { CornerUpLeft } from 'lucide-react';
+import { fullNavigate } from '@/lib/utils';
 
 export const EmailPasswordAuthToggle = () => {
     const { t } = useTranslation();
@@ -87,7 +88,7 @@ export const EmailPasswordAuthToggle = () => {
             {step === 'email' ? (
                 <>
                     <Field>
-                        <FieldLabel htmlFor="email" className='flex-row-reverse'>
+                        <FieldLabel htmlFor="email">
                             {t('label.email')}
                         </FieldLabel>
                         <Input
@@ -141,7 +142,7 @@ export const EmailPasswordAuthToggle = () => {
                         <DeferredButton
                             asyncFn={handleLogin}
                             onResolve={() => {
-                                window.location.href = '/';
+                                fullNavigate('/')
                             }}
                             disabled={!password.trim()}
                             className="flex-1 rounded-xl h-11"

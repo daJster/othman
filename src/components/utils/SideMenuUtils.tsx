@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, fullNavigate } from "@/lib/utils";
 import {
     SidebarMenuItem,
     SidebarMenuButton,
@@ -22,13 +22,13 @@ export const NavItemRow = ({
     item: NavItem;
 })=> {
     const [open, setOpen] = useState(false);
-    const navigate = (path: string) => {window.location.href = path}
-    const renderNavItem = (item: NavItem) => {
 
+    const renderNavItem = (item: NavItem) => {
         if (item.href) {
             return (
                 <button
-                    onClick={() => navigate(item.href ?? "/")}
+                    onClick={() => fullNavigate(item.href ?? '/')}
+                    className='h-10'
                 >
                     {item.Icon && <item.Icon className={'w-4 h-4'} />}
                     <span>{item.title}</span>

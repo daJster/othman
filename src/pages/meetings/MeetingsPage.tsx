@@ -5,8 +5,6 @@ import { arSA, enUS } from 'react-day-picker/locale';
 import { useTranslation } from 'react-i18next';
 import { MeetingsList } from '@/pages/meetings/components/MeetingsList.tsx';
 import { useMeetingsContext } from '@/hooks/use-meetings.ts';
-import { format } from 'date-fns';
-import { ar, enUS as en } from 'date-fns/locale';
 
 const locales = {
     ar: arSA,
@@ -15,7 +13,7 @@ const locales = {
 
 export const MeetingsPage = () => {
     const { t, i18n } = useTranslation();
-    const { selectedDate, fetchMeetings, meetings } = useMeetingsContext();
+    const { selectedDate, fetchMeetings } = useMeetingsContext();
     const [date, setDate] = useState<Date | undefined>(selectedDate);
 
     const bookedDates = Array.from(
@@ -28,11 +26,6 @@ export const MeetingsPage = () => {
         if (newDate) {
             fetchMeetings(newDate);
         }
-    };
-
-    const formatSelectedDate = () => {
-        const locale = i18n.language === 'ar' ? ar : en;
-        return format(selectedDate, 'EEEE, MMMM d, yyyy', { locale });
     };
 
     return (
@@ -78,7 +71,7 @@ export const MeetingsPage = () => {
             </div>
 
             <div className="px-5 w-full">
-                <MeetingsList meetings={meetings} />
+                <MeetingsList />
             </div>
         </div>
     );

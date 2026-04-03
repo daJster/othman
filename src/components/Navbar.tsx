@@ -89,7 +89,7 @@ export function Navbar({ className }: NavbarProps) {
                                 <button
                                     onClick={toggleSidebar}
                                     className={
-                                        'flex p-2 gap-2 bg-gray-50 text-neutral-700 dark:text-white dark:bg-green-800 cursor-pointer  items-center flex-row-reverse'
+                                        'flex p-2 gap-2 bg-gray-50 text-neutral-700 dark:text-white dark:bg-green-800 cursor-pointer  items-center'
                                     }
                                 >
                                     <MenuIcon className="h-5 w-5" />

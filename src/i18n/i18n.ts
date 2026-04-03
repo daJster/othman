@@ -44,14 +44,14 @@ i18n.use(initReactI18next).init({
 
 // Set initial direction on page load
 const initialLang = getInitialLanguage();
-const initialDir = initialLang === DEFAULT_LANG ? 'rtl' : 'ltr';
+const initialDir = initialLang === DEFAULT_LANG ? 'ltr' : 'rtl';
 document.documentElement.dir = initialDir;
 document.documentElement.lang = initialLang;
 
 // Listen for language changes to update the document direction (RTL/LTR)
 i18n.on('languageChanged', (lng) => {
     setLanguage(lng);
-    const dir = lng === DEFAULT_LANG ? 'rtl' : 'ltr';
+    const dir = lng === DEFAULT_LANG ? 'ltr' : 'rtl';
     document.documentElement.dir = dir;
     document.documentElement.lang = lng;
 });

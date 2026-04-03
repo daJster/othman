@@ -26,7 +26,7 @@ export const analytics = getAnalytics(FirebaseApp);
 export const functions = getFunctions(FirebaseApp);
 
 // Auth Providers
-export const googleProvider = new GoogleAuthProvider();
-export const facebookProvider = new FacebookAuthProvider();
+export const googleAuthProvider = new GoogleAuthProvider();
+export const facebookAuthProvider = new FacebookAuthProvider();
 
 export default FirebaseApp;

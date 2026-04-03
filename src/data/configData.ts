@@ -24,10 +24,7 @@ export const createDefaultNavConfig: () => NavConfig = () => {
         guest: [
             { title: "nav.home", href: "/" },
             { title: "nav.meetings", href: "/kuttab" },
-            { title: "nav.books", children: [
-                { title: "nav.quran.hafs", href: "/quran/hafs", description: "nav.quran.hafsDesc" },
-                { title: "nav.quran.warsh", href: "/quran/warsh", description: "nav.quran.warshDesc" },
-            ]},
+            { title: "nav.quran.warsh", href: "/quran/warsh", description: "nav.quran.warshDesc" },
         ],
         user: [
             { title: "nav.profile", href: "/profile" },

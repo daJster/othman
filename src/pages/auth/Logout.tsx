@@ -3,6 +3,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { logout } from '@/firebase/auth/auth';
 import { useTranslation } from 'react-i18next';
 import { Spinner } from '@/components/ui/spinner';
+import { fullNavigate } from '@/lib/utils';
 
 export const LogoutPage = () => {
     const { t } = useTranslation();
@@ -30,7 +31,7 @@ export const LogoutPage = () => {
             }, 1000);
             return () => clearTimeout(timer);
         } else if (!isLoading && countdown === 0) {
-            window.location.href = '/';
+            fullNavigate('/')
         }
     }, [isLoading, countdown]);
 

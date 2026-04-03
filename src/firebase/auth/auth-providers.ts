@@ -18,13 +18,13 @@ export const AUTH_PROVIDERS: Record<string, AuthProvider> = {
         iconAlt: 'Google',
         Component: GoogleAuthToggle,
     },
-    facebook: {
-        id: 'facebook',
-        labelKey: 'action.auth.facebook',
-        icon: '/facebook.svg',
-        iconAlt: 'Facebook',
-        Component: FacebookAuthToggle,
-    },
+    // facebook: {
+    //     id: 'facebook',
+    //     labelKey: 'action.auth.facebook',
+    //     icon: '/facebook.svg',
+    //     iconAlt: 'Facebook',
+    //     Component: FacebookAuthToggle,
+    // },
 };
 
 export const AUTH_PROVIDER_LIST = Object.values(AUTH_PROVIDERS);

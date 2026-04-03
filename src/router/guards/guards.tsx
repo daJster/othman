@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeftCircle } from 'lucide-react';
+import { fullNavigate } from '@/lib/utils';
 
 const errorMessages: Record<string, { title: string; description: string }> = {
     '400': {
@@ -47,8 +48,8 @@ export const ErrorGuardPage = () => {
                 <p className="mt-2 text-gray-600">{t(error.description)}</p>
 
                 <Button
-                    onClick={() => (window.location.href = '/')}
-                    className="flex gap-2 items-center mt-6 px-5 py-5 rounded-2xl bg-black text-white text-sm hover:bg-gray-800 transition flex-row-reverse"
+                    onClick={() => fullNavigate('/')}
+                    className="flex gap-2 items-center mt-6 px-5 py-5 rounded-2xl bg-black text-white text-sm hover:bg-gray-800 transition"
                 >
                     <ArrowLeftCircle />
                     <p>{t('action.goBackHome')}</p>

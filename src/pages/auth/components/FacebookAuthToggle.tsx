@@ -1,13 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { DeferredButton } from '@/components/ui/deferred-button';
 import { signInWithPopup } from 'firebase/auth';
-import { auth, facebookProvider } from '@/firebase';
+import { auth, facebookAuthProvider } from '@/firebase';
+import { fullNavigate } from '@/lib/utils';
 
 export const FacebookAuthToggle = () => {
     const { t } = useTranslation();
 
     const handleFacebookLogin = async () => {
-        await signInWithPopup(auth, facebookProvider);
+        await signInWithPopup(auth, facebookAuthProvider);
     };
 
     return (
@@ -15,7 +16,7 @@ export const FacebookAuthToggle = () => {
             variant="outline"
             asyncFn={handleFacebookLogin}
             onResolve={() => {
-                window.location.href = '/';
+                fullNavigate('/')
             }}
             className="w-full flex items-center justify-center gap-2 rounded-xl h-11"
         >

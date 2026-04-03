@@ -32,6 +32,7 @@ export const MeetingsProvider = ({ children }: MeetingsProviderProps) => {
 
         const onError: FetchMeetingsErrorCallback = (err) => {
             setError(err);
+            setMeetings([]);
             setLoading(false);
         };
 

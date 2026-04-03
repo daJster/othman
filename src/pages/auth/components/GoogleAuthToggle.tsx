@@ -1,13 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { DeferredButton } from '@/components/ui/deferred-button';
 import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '@/firebase';
+import { auth, googleAuthProvider } from '@/firebase';
+import { fullNavigate } from '@/lib/utils';
 
 export const GoogleAuthToggle = () => {
     const { t } = useTranslation();
 
     const handleGoogleLogin = async () => {
-        await signInWithPopup(auth, googleProvider);
+        await signInWithPopup(auth, googleAuthProvider);
     };
 
     return (
@@ -15,7 +16,7 @@ export const GoogleAuthToggle = () => {
             variant="outline"
             asyncFn={handleGoogleLogin}
             onResolve={() => {
-                window.location.href = '/';
+                fullNavigate('/')
             }}
             className="w-full flex items-center justify-center gap-2 rounded-xl h-11"
         >
