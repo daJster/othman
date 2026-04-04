@@ -1,24 +1,22 @@
-import {type ReactNode} from 'react';
+import { Outlet } from 'react-router';
 
 import { Navbar } from '@/components/Navbar.tsx';
 import { Footer } from '@/components/Footer.tsx';
-import {SidebarProvider} from "@/components/ui/sidebar.tsx";
-import {TooltipProvider} from "@/components/ui/tooltip.tsx";
+import { SidebarProvider } from '@/components/ui/sidebar.tsx';
+import { TooltipProvider } from '@/components/ui/tooltip.tsx';
 
-interface MainLayoutProps {
-    children: ReactNode;
-}
-
-export function MainLayout({ children }: MainLayoutProps) {
+export function MainLayout() {
     return (
         <SidebarProvider defaultOpen={false}>
-        <TooltipProvider>
-            <div className="flex flex-col w-full">
-                <Navbar />
-                <main>{children}</main>
-                <Footer />
-            </div>
-        </TooltipProvider>
+            <TooltipProvider>
+                <div className="flex flex-col w-full">
+                    <Navbar />
+                    <main>
+                        <Outlet />
+                    </main>
+                    <Footer />
+                </div>
+            </TooltipProvider>
         </SidebarProvider>
     );
 }

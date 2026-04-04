@@ -1,8 +1,7 @@
 import { BrowserRouter, useRoutes } from 'react-router-dom';
 
-import { MainLayout } from '@/layouts';
 import { routes } from '@/router';
-import { AuthProvider, MeetingsProvider } from '@/providers';
+import { AuthProvider, ThemeProvider } from '@/providers';
 
 const AppRoutes = () => {
     return useRoutes(routes);
@@ -10,15 +9,13 @@ const AppRoutes = () => {
 
 function App() {
     return (
-        <AuthProvider>
-            <MeetingsProvider>
+        <ThemeProvider>
+            <AuthProvider>
                 <BrowserRouter>
-                    <MainLayout>
-                        <AppRoutes />
-                    </MainLayout>
+                    <AppRoutes />
                 </BrowserRouter>
-            </MeetingsProvider>
-        </AuthProvider>
+            </AuthProvider>
+        </ThemeProvider>
     );
 }
 

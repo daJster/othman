@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
     Tooltip,
     TooltipContent,
@@ -7,36 +6,11 @@ import {
 import { Button } from '@/components/ui/button.tsx';
 import { MoonIcon, SunIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { getItem, setItem, STORAGE_KEYS } from '@/lib/localStorage.ts';
+import { useTheme } from '@/hooks/use-theme.ts';
 
 const ThemeToggle = () => {
     const { t } = useTranslation();
-
-    const getInitialTheme = (): 'light' | 'dark' => {
-        const stored = getItem<'light' | 'dark' | ''>(STORAGE_KEYS.THEME, '');
-        return stored || 'dark';
-    };
-
-    const applyTheme = (theme: 'light' | 'dark') => {
-        const root = document.documentElement;
-        if (theme === 'dark') {
-            root.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-        }
-    };
-
-    const toggleTheme = () => {
-        const root = document.documentElement;
-        const isDark = root.classList.contains('dark');
-        const newTheme = isDark ? 'light' : 'dark';
-        applyTheme(newTheme);
-        setItem(STORAGE_KEYS.THEME, newTheme);
-    };
-
-    useEffect(() => {
-        applyTheme(getInitialTheme());
-    }, []);
+    const { toggleTheme } = useTheme();
 
     return (
         <Tooltip>

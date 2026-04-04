@@ -20,8 +20,8 @@ export const GoogleAuthToggle = () => {
             }}
             className="w-full flex items-center justify-center gap-2 rounded-xl h-11"
         >
-            <img src="/google.svg" alt="" className={'h-6 w-6'} />
             <p>{t('action.auth.google')}</p>
+            <img src="/google.svg" alt="" className={'h-6 w-6'} />
         </DeferredButton>
     );
 };

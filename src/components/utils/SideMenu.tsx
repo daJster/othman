@@ -23,7 +23,11 @@ import { NavItemRow } from '@/components/utils/SideMenuUtils.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { AccountCard } from '@/components/ui/account-card.tsx';
 import { useTranslation } from 'react-i18next';
-import { LogOutIcon } from 'lucide-react';
+import {
+    LogOutIcon,
+    SquareArrowOutUpRightIcon,
+    SettingsIcon,
+} from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
 export interface SidebarWrapperProps {
@@ -102,19 +106,29 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
                             )}
                         </SidebarGroupLabel>
                         {account ? (
-                            <AccountCard account={account} />
+                            <AccountCard
+                                account={account}
+                                onClick={() => fullNavigate('/account')}
+                                icon={SquareArrowOutUpRightIcon}
+                            />
                         ) : (
                             <AuthToggle />
                         )}
                         <SidebarGroupContent>
-                            <SidebarMenu className='space-y-1'>
+                            <SidebarMenu className="space-y-1">
                                 {[...navItems, helpNavConfig].map((item) => (
                                     <NavItemRow key={item.title} item={item} />
                                 ))}
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
-                    <SidebarFooter>
+                    <SidebarFooter className="flex flex-row justify-between">
+                        <button
+                            onClick={() => fullNavigate('/account/settings')}
+                            className="flex items-center justify-center px-2"
+                        >
+                            <SettingsIcon className='h-5 w-5'/>
+                        </button>
                         <LogoutToggle />
                     </SidebarFooter>
                 </SidebarContent>
