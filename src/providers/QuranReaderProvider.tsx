@@ -16,7 +16,7 @@ import {
 } from './contexts';
 import { useTheme } from '@/hooks/use-theme';
 import { CircleXIcon } from 'lucide-react';
-import { CDN_BASE, QURAN_METADATA_URL } from '@/data/configData';
+import { CDN_BASE_URL, QURAN_METADATA_URL } from '@/data/configData';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -37,7 +37,7 @@ export interface QuranReaderNav {
 
 // ─── Constants ──────────────────────────────────────────────────────────────────
 
-const EDITIONS_URL = `${CDN_BASE}/editions.json`;
+const EDITIONS_URL = `${CDN_BASE_URL}/editions.json`;
 const EDITION_STORAGE_KEY = 'quranreader:edition';
 const PAGE_STORAGE_KEY = 'lastVisitedPage';
 const CACHE_ASIDE_PAGES = 2; // how many pages to preload on each side
@@ -63,8 +63,7 @@ const jsonCache = new Map<string, unknown>();
 
 async function fetchJSON<T>(url: string): Promise<T> {
   if (jsonCache.has(url)) return jsonCache.get(url) as T;
-  const proxied = url.replace(CDN_BASE, "/cdn");
-  const res = await fetch(proxied);
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
   const data: T = await res.json();
   jsonCache.set(url, data);

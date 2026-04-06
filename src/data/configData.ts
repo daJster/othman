@@ -12,8 +12,8 @@ import {
     ChartLine,
 } from 'lucide-react';
 
-export const CDN_BASE = 'https://cdn.kuttab-othman.workers.dev';
-export const QURAN_METADATA_URL = `${CDN_BASE}/quran.json`;
+export const CDN_BASE_URL = 'https://cdn.kuttab-othman.workers.dev';
+export const QURAN_METADATA_URL = `${CDN_BASE_URL}/quran.json`;
 
 export type NavItemVariant = 'default' | 'destructive';
 

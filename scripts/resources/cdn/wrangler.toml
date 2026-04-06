@@ -1,0 +1,6 @@
+name = "cdn"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[site]
+bucket = "./public"  # serves your static files (index.html, editions.json, etc.)
