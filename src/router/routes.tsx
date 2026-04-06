@@ -5,8 +5,10 @@ import { homeRoute } from '@/pages/home/route';
 import { Navigate } from 'react-router-dom';
 import { ErrorGuardPage } from '@/router/guards';
 import { SignInRoute, LogoutRoute } from '@/pages/auth';
-import { meetingsRoute } from '@/pages/meetings/routes.tsx';
-import { AccountPage } from '@/pages/account';
+import { quranReaderRoute } from '@/pages/quran';
+import { accountRoute } from '@/pages/account';
+import { progressRoute } from '@/pages/account/progress';
+import { meetingsRoute } from '@/pages/meetings';
 
 const publicRoutes: RouteObject[] = [homeRoute, SignInRoute, LogoutRoute];
 
@@ -24,6 +26,10 @@ export const routes: RouteObject[] = [
     },
     {
         element: <MinimalLayout />,
-        children: [{ path: '/account', element: <AccountPage /> }],
+        children: [
+            accountRoute,
+            progressRoute,
+            quranReaderRoute
+        ],
     },
 ];

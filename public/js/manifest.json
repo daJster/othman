@@ -1,0 +1,26 @@
+{
+  "theme_color":"#8dc39b",
+  "background_color":"#ffffff",
+  "icons": [
+    {
+      "purpose":"maskable",
+      "sizes":"512x512",
+      "src":"icon512_maskable.png",
+      "type":"image/png"
+    },
+    {
+      "purpose":"any",
+      "sizes":"512x512",
+      "src":"icon512_rounded.png",
+      "type":"image/png"
+    }
+  ],
+  "orientation":"any",
+  "display":"standalone",
+  "dir":"rtl",
+  "lang":"ar",
+  "name":"كُتَّاب عُثمَان",
+  "short_name":" عُثمَان",
+  "start_url":"https://kuttab-othman.web.app/",
+  "description":"كتَّاب عُثمَان إبن عَفَّان لِحفظِ القرآن"
+}

@@ -1,4 +1,4 @@
-import { FacebookAuthToggle } from "@/pages/auth/components/FacebookAuthToggle";
+// import { FacebookAuthToggle } from "@/pages/auth/components/FacebookAuthToggle";
 import { GoogleAuthToggle } from "@/pages/auth/components/GoogleAuthToggle";
 import type { ComponentType } from "react";
 

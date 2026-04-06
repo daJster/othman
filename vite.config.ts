@@ -11,6 +11,13 @@ export default defineConfig({
   ],
   server: {
     port: 8080,
+    proxy: {
+        '/cdn': {
+          target: 'https://cdn.kuttab-othman.workers.dev',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/cdn/, ''),
+        },
+      },
   },
   resolve: {
     alias: {

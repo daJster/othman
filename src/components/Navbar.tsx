@@ -102,7 +102,7 @@ export function Navbar({ className }: NavbarProps) {
                         </Tooltip>
 
                         {/* Navigation */}
-                        <SideMenu title={t('app.name')} variant={'floating'} />
+                        <SideMenu title={t('app.name')} />
                     </div>
                 </div>
             </div>

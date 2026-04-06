@@ -8,3 +8,11 @@ export function cn(...inputs: ClassValue[]) {
 export function fullNavigate(to: string) {
     window.location.href = to;
 }
+
+export const getHeatmapColor = (value: number) => {
+    if (value === 0) return 'bg-green-100';
+    if (value < 25) return 'bg-green-200';
+    if (value < 50) return 'bg-green-400';
+    if (value < 75) return 'bg-green-600';
+    return 'bg-green-800';
+};

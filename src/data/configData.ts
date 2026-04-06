@@ -12,6 +12,9 @@ import {
     ChartLine,
 } from 'lucide-react';
 
+export const CDN_BASE = 'https://cdn.kuttab-othman.workers.dev';
+export const QURAN_METADATA_URL = `${CDN_BASE}/quran.json`;
+
 export type NavItemVariant = 'default' | 'destructive';
 
 export interface NavItem {
@@ -39,8 +42,8 @@ export const createDefaultNavConfig: () => NavConfig = () => {
             { title: 'nav.home', href: '/' },
             { title: 'nav.meetings', href: '/kuttab' },
             {
-                title: 'nav.quran.warsh',
-                href: '/quran/warsh',
+                title: 'nav.quran',
+                href: '/quran',
                 description: 'nav.quran.warshDesc',
             },
         ],
@@ -191,7 +194,7 @@ export const createAccountSettingsNavConfig: () => NavItem[][] = () => {
             },
             {
                 title: 'Terms & Conditions',
-                href: '/account/settings/t&c',
+                href: '/t&c',
                 Icon: FileText,
             },
             {

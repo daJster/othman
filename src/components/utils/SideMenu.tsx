@@ -34,13 +34,11 @@ export interface SidebarWrapperProps {
     title?: string;
     showCloseButton?: boolean;
     variant?: 'sidebar' | 'floating';
-    className?: string;
 }
 
 const SideMenu: React.FC<SidebarWrapperProps> = ({
     title = '',
-    variant = 'floating',
-    className = '',
+    variant = 'sidebar',
 }) => {
     const maxTitleLength = 20;
     const isLong = title.length > maxTitleLength;
@@ -76,13 +74,11 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
     );
 
     return (
-        <div
-            className={`absolute top-15 left-0 h-full transition-all border-none duration-300 ease-in-out ${className}`}
-        >
+        <div className='absolute top-0 left-0 min-h-screen'>
             <Sidebar
                 variant={variant}
                 className={cn(
-                    'relative w-full h-full p-2 duration-400 ease-in-out'
+                    'absolute h-full w-full duration-400 ease-in-out'
                 )}
             >
                 <SidebarContent className="flex flex-col justify-between h-full dark:bg-green-800/30">

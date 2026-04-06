@@ -1,0 +1,11 @@
+{
+    "1" : {
+        "name" : "Tajweed",
+        "riwaya" : "hafs", 
+        "base_url" : "https://cdn.kuttab-othman.workers.dev/Tajweed",
+        "bbox_url" : "https://cdn.kuttab-othman.workers.dev/Tajweed/book_Tajweed_bbox.json",
+        "bbox_reversed_url" : "https://cdn.kuttab-othman.workers.dev/Tajweed/book_Tajweed_bbox_reversed.json",
+        "first_page": 1,
+        "last_page": 604
+    }
+}

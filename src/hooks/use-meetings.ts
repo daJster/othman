@@ -5,11 +5,11 @@ import {
 } from '@/providers/contexts';
 
 export const useMeetingsContext = (): MeetingsContextValue => {
-    const context = useContext(MeetingsContext);
-    if (!context) {
+    const ctx = useContext(MeetingsContext);
+    if (!ctx) {
         throw new Error(
             'useMeetingsContext must be used within a MeetingsProvider'
         );
     }
-    return context;
+    return ctx;
 };

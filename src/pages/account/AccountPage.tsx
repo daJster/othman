@@ -8,10 +8,12 @@ import { createAccountSettingsNavConfig } from '@/data/configData';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 export function AccountPage() {
     const { account } = useAuth();
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const settingsNav = createAccountSettingsNavConfig();
 
     return (
@@ -45,6 +47,7 @@ export function AccountPage() {
                             <Button
                                 key={itemIndex}
                                 variant="ghost"
+                                onClick={() => {navigate(item.href ?? "/")}}
                                 className={`flex items-center justify-start rounded-none p-0 ${
                                     itemIndex === 0
                                         ? 'rounded-t-lg'
