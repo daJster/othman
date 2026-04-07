@@ -29,7 +29,7 @@ export const routes: RouteObject[] = [
         children: [
             accountRoute,
             progressRoute,
-            quranReaderRoute
         ],
     },
+    quranReaderRoute
 ];

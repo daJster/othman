@@ -24,7 +24,7 @@ export function SurahProgressSummary({
 }: SurahProgressSummaryProps) {
     return (
         <Drawer open={open} onOpenChange={onOpenChange}>
-            <DrawerContent>
+            <DrawerContent className='max-w-2xl mx-auto'>
                 <DrawerHeader className="text-left">
                     <DrawerTitle className="flex items-center justify-between">
                         <span>

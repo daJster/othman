@@ -17,7 +17,7 @@ export function AccountPage() {
     const settingsNav = createAccountSettingsNavConfig();
 
     return (
-        <div className="container mx-auto p-4 space-y-4">
+        <div className="container mx-auto p-4 space-y-4 max-w-3xl">
             {/* HEADER */}
             <div>
                 {account ? (

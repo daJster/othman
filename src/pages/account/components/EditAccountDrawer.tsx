@@ -2,13 +2,11 @@ import { useState } from 'react';
 
 import { EditableAvatar } from '@/components/ui/editable-avatar';
 import {
-    Drawer,
     DrawerClose,
     DrawerContent,
     DrawerFooter,
     DrawerHeader,
     DrawerTitle,
-    DrawerTrigger,
 } from '@/components/ui/drawer';
 import {
     Field,
@@ -51,7 +49,7 @@ export const EditAccountDrawer = ({ account }: EditAccountDrawerProps) => {
     };
 
     return (
-        <DrawerContent>
+        <DrawerContent className='mx-auto max-w-3xl'>
             <DrawerHeader>
                 <DrawerTitle>Edit Profile</DrawerTitle>
             </DrawerHeader>

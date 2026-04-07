@@ -5,6 +5,31 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@keyframes slideInLeft {
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+    
+@keyframes slideInRight {
+    from { transform: translateX(-100%); opacity: 0; }
+    to   { transform: translateX(0);     opacity: 1; }
+}
+
+@keyframes slideOutLeft {
+    from { transform: translateX(0); opacity: 1; }
+    to   { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0);    opacity: 1; }
+    to   { transform: translateX(100%); opacity: 0; }
+}
+
+.animate-slide-in-left   { animation-name: slideInLeft;   }
+.animate-slide-in-right  { animation-name: slideInRight;  }
+.animate-slide-out-left  { animation-name: slideOutLeft;  }
+.animate-slide-out-right { animation-name: slideOutRight; }
+
 :root {
     --text: #6b6375;
     --text-h: #08060d;

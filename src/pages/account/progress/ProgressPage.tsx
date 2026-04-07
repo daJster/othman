@@ -43,40 +43,42 @@ export default function ProgressPage() {
     };
 
     return (
-        <div className="px-6 py-4 space-y-6">
-            <div className="flex w-full justify-center">
-                <Card className='max-w-4xl w-full'>
+        <div className="flex justify-center w-full px-6 py-4">
+            <div className='w-full max-w-3xl space-y-6'>
+                <div className="flex w-full justify-center">
+                    <Card className='max-w-4xl w-full'>
+                        <CardHeader>
+                            <CardTitle className="text-xl font-semibold text-center">
+                                {t('pages.account.progress.title')}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Legend />
+                            <SurahHeatmap
+                                selectedSurah={selectedSurah}
+                                onSelect={handleSelect}
+                            />
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <Card>
                     <CardHeader>
-                        <CardTitle className="text-xl font-semibold text-center">
-                            {t('pages.account.progress.title')}
+                        <CardTitle className="text-md font-semibold p-0 m-0">
+                            {t('pages.account.progress.recentTasks.title')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Legend />
-                        <SurahHeatmap
-                            selectedSurah={selectedSurah}
-                            onSelect={handleSelect}
-                        />
+                        <NotFound label='recent Tasks'/>
                     </CardContent>
                 </Card>
-            </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-md font-semibold p-0 m-0">
-                        {t('pages.account.progress.recentTasks.title')}
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <NotFound label='recent Tasks'/>
-                </CardContent>
-            </Card>
-
-            <SurahProgressSummary
-                data={selectedData}
-                open={drawerOpen}
-                onOpenChange={setDrawerOpen}
+                <SurahProgressSummary
+                    data={selectedData}
+                    open={drawerOpen}
+                    onOpenChange={setDrawerOpen}
             />
+            </div>
         </div>
     );
 }

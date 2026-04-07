@@ -51,6 +51,7 @@ export interface QuranReaderContextValue {
     metadata: {[key: string] : SurahMetadata} | null;
     bboxesPerSurah: EditionBboxes | null;
     bboxesPerPage: EditionBboxesReversed | null;
+    selectedEdition: QuranEdition | null;
     loading: boolean;
     error: Error | null;
     nav: QuranReaderNav | null;

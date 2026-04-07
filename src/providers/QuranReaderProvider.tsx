@@ -26,6 +26,7 @@ export interface QuranReaderNav {
     currentPage: number;
     currentSurah: number;
     currentAyah: number;
+    currentAbsoluteAyah: number;
     goToPage: (page: number) => void;
     goToSurah: (surah: number, ayah?: number) => void;
     goToAyah: (surah: number, ayah: number) => void;
@@ -108,6 +109,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [currentSurah, setCurrentSurah] = useState(1);
     const [currentAyah, setCurrentAyah] = useState(1);
+    const [currentAbsoluteAyah, setAbsoluteCurrentAyah] = useState(1);
 
     const editionRef = useRef<QuranEdition | null>(null);
 
@@ -180,7 +182,10 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             } catch (err) {
                 setError(err instanceof Error ? err : new Error(String(err)));
             } finally {
-                setLoading(false);
+                setTimeout( // fake delay
+                    () => setLoading(false), 
+                    700
+                );
             }
         }
 
@@ -197,8 +202,10 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             const firstAyah = pageData.ayat[firstAyahKey];
             setCurrentSurah(firstAyah.surah);
             // ayah key is "surah:ayah"
-            const ayahNum = parseInt(firstAyahKey.split(':')[1] ?? '1', 10);
+            const ayahNum = Number(firstAyahKey)
+            const absoluteAyahNum = firstAyah.absolute_number
             setCurrentAyah(Number.isFinite(ayahNum) ? ayahNum : 1);
+            setAbsoluteCurrentAyah(Number.isFinite(absoluteAyahNum) ? absoluteAyahNum : 1)
         },
         []
     );
@@ -267,9 +274,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             if (!bboxesPerSurah) return;
             const surahData = bboxesPerSurah.surahs[String(surah)];
             if (!surahData) return;
-            const ayahData =
-                surahData.ayat[`${surah}:${ayah}`] ??
-                surahData.ayat[Object.keys(surahData.ayat)[0]];
+            const ayahData = surahData.ayat[String(ayah)];
             if (!ayahData) return;
             setCurrentSurah(surah);
             setCurrentAyah(ayah);
@@ -298,6 +303,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             currentPage,
             currentSurah,
             currentAyah,
+            currentAbsoluteAyah,
             goToPage,
             goToSurah,
             goToAyah,
@@ -310,6 +316,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             currentPage,
             currentSurah,
             currentAyah,
+            currentAbsoluteAyah,
             goToPage,
             goToSurah,
             goToAyah,
@@ -362,7 +369,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
                             : '/quranReaderLandingLogo-dark.png'
                     }
                     alt="Quran"
-                    className="w-45 opacity-90 transition-opacity duration-700 ease-in-out animate-fadeIn"
+                    className="w-45 opacity-90 transition-opacity ease-in-out animate-pulse animation-duration-700"
                 />
 
                 <div className="w-40">
