@@ -17,6 +17,7 @@ export const CDN_BASE_URL = 'https://cdn.kuttab-othman.workers.dev';
 export const ALQURAN_API_BASE_URL = 'http://api.alquran.cloud';
 export const ALQURAN_CDN_BASE_URL = 'https://cdn.islamic.network';
 export const QURAN_METADATA_URL = `${CDN_BASE_URL}/quran.json`;
+export const QURANPEDIA_BASE_URL = 'https://api.quranpedia.net';
 export const MAX_ABSOLUTE_AYAH_NUMBER = 6236;
 export const isAyahNumberValid = (n: number) =>
     n >= 1 && n <= MAX_ABSOLUTE_AYAH_NUMBER;
@@ -218,6 +219,7 @@ export interface Shaykh {
     type: 'translation' | 'versebyverse';
     identifier: string;
     direction: string | null;
+    url_path: string;
 }
 
 export const createShaykhListConfig = (): {
@@ -233,6 +235,7 @@ export const createShaykhListConfig = (): {
             format: 'audio',
             type: 'versebyverse',
             direction: null,
+            url_path: '/quran/audio/128/ar.husarymujawwad/'
         },
         readers: [
             {
@@ -243,6 +246,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/128/ar.husarymujawwad/'
             },
             {
                 identifier: 'ar.abdulbasitmurattal',
@@ -252,6 +256,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'translation',
                 direction: null,
+                url_path: '/quran/audio/192/ar.abdulbasitmurattal/'
             },
             {
                 identifier: 'ar.abdullahbasfar',
@@ -261,6 +266,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/192/ar.abdullahbasfar/'
             },
             {
                 identifier: 'ar.abdurrahmaansudais',
@@ -270,6 +276,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/192/ar.abdurrahmaansudais/'
             },
             {
                 identifier: 'ar.abdulsamad',
@@ -279,6 +286,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/64/ar.abdulsamad/'
             },
             {
                 identifier: 'ar.shaatree',
@@ -288,6 +296,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/128/ar.shaatree/'
             },
             {
                 identifier: 'ar.alafasy',
@@ -297,6 +306,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/128/ar.alafasy/'
             },
             {
                 identifier: 'ar.hudhaify',
@@ -306,6 +316,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/128/ar.hudhaify/'
             },
             {
                 identifier: 'ar.mahermuaiqly',
@@ -315,6 +326,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/128/ar.mahermuaiqly/'
             },
             {
                 identifier: 'ar.minshawi',
@@ -324,6 +336,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'translation',
                 direction: null,
+                url_path: '/quran/audio/128/ar.minshawi/'
             },
             {
                 identifier: 'ar.minshawimujawwad',
@@ -333,6 +346,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'translation',
                 direction: null,
+                url_path: '/quran/audio/64/ar.minshawimujawwad/'
             },
             {
                 identifier: 'ar.muhammadayyoub',
@@ -342,6 +356,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/128/ar.muhammadayyoub/'
             },
             {
                 identifier: 'ar.muhammadjibreel',
@@ -351,6 +366,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/128/ar.muhammadjibreel/'
             },
             {
                 identifier: 'fr.leclerc',
@@ -360,6 +376,7 @@ export const createShaykhListConfig = (): {
                 format: 'audio',
                 type: 'versebyverse',
                 direction: null,
+                url_path: '/quran/audio/128/fr.leclerc/'
             },
         ],
     };

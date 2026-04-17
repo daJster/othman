@@ -1,0 +1,48 @@
+{
+    "notes": [
+        {
+            "id": "1",
+            "surah": 1,
+            "ayah": 1,
+            "person": {
+                "name": "أحمد",
+                "avatar": "https://i.pravatar.cc/32?img=11"
+            },
+            "timestamp": "2026-04-15T10:30:00Z",
+            "text": "بسم الله الرحمن الرحيم - بداية كل شيء بخير"
+        },
+        {
+            "id": "2",
+            "surah": 1,
+            "ayah": 1,
+            "person": {
+                "name": "سارة",
+                "avatar": "https://i.pravatar.cc/32?img=5"
+            },
+            "timestamp": "2026-04-16T14:20:00Z",
+            "text": "الله أكبر - اسم من أسماء الله الحسنى"
+        },
+        {
+            "id": "3",
+            "surah": 1,
+            "ayah": 2,
+            "person": {
+                "name": "محمد",
+                "avatar": "https://i.pravatar.cc/32?img=12"
+            },
+            "timestamp": "2026-04-17T09:15:00Z",
+            "text": "الحمد لله - شكر لله على نعمائه"
+        },
+        {
+            "id": "4",
+            "surah": 2,
+            "ayah": 1,
+            "person": {
+                "name": "علي",
+                "avatar": "https://i.pravatar.cc/32?img=8"
+            },
+            "timestamp": "2026-04-17T16:45:00Z",
+            "text": "الم - حرف من حروف الهجاء"
+        }
+    ]
+}

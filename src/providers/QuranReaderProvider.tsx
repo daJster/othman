@@ -17,7 +17,7 @@ import {
 import { useTheme } from '@/hooks/use-theme';
 import { CircleXIcon } from 'lucide-react';
 import {
-    AUDIO_QUALITIES,
+    ALQURAN_CDN_BASE_URL,
     CDN_BASE_URL,
     createShaykhListConfig,
     isAyahNumberValid,
@@ -349,23 +349,15 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             quranShaykhId: string
         ): Promise<HTMLAudioElement | null> => {
             const { readers } = createShaykhListConfig();
-            const isValidShaykh = readers.some(
+            const shaykh = readers.find(
                 (sh) => sh.identifier === quranShaykhId
             );
 
-            if (!isValidShaykh || !isAyahNumberValid(absoluteAyah)) {
+            if (!shaykh || !isAyahNumberValid(absoluteAyah)) {
                 return null;
             }
 
-            const buildUrl = (
-                n: number,
-                quranShaykhId: string,
-                quality: number
-            ) =>
-                `https://cdn.islamic.network/quran/audio/${quality}/${quranShaykhId}/${n}.mp3`;
-
-            const getUrls = (n: number) =>
-                AUDIO_QUALITIES.map((q) => buildUrl(n, quranShaykhId, q));
+            const url = `${ALQURAN_CDN_BASE_URL}${shaykh.url_path}${absoluteAyah}.mp3`;
 
             const prefetchOffsets = [-1, 1, 2, 3];
 
@@ -373,12 +365,11 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
                 .map((offset) => absoluteAyah + offset)
                 .filter(isAyahNumberValid)
                 .forEach((n) => {
-                    const [primary, ...fallbacks] = getUrls(n);
-                    fetchAudio(primary, fallbacks);
+                    const prefetchUrl = `${ALQURAN_CDN_BASE_URL}${shaykh.url_path}${n}.mp3`;
+                    fetchAudio(prefetchUrl);
                 });
 
-            const [primary, ...fallbacks] = getUrls(absoluteAyah);
-            return fetchAudio(primary, fallbacks);
+            return fetchAudio(url);
         },
         []
     );

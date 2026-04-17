@@ -6,13 +6,11 @@ import { ButtonGroup } from '@/components/ui/button-group';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     createQuranReaderUtilitiesConfig,
-    type QuranReaderUtilitiesConfig,
-} from './utilitiesConfig';
+} from './utilities/utilitiesConfig';
 import type { Ayah } from './AyahOverlay';
 
 export interface QuranReaderUtilitiesProps {
     selectedAyah: Ayah | null;
-    config?: QuranReaderUtilitiesConfig;
     className?: string;
 }
 
@@ -24,9 +22,8 @@ const panelVariants = {
 
 export function QuranReaderUtilities({
     selectedAyah,
-    config: configProp,
 }: QuranReaderUtilitiesProps) {
-    const config = configProp ?? createQuranReaderUtilitiesConfig();
+    const config = createQuranReaderUtilitiesConfig();
     const [activeKey, setActiveKey] = useState<string>(config.defaultUtility);
 
     const handleUtilityChange = (key: string) => {
@@ -50,7 +47,7 @@ export function QuranReaderUtilities({
                         transition={{ duration: 0.2, ease: 'easeOut' }}
                         className="absolute top-20 left-0 flex w-full justify-center"
                     >
-                        <ButtonGroup className="backdrop-blur-sm rounded-xl  dark:border-green-700/50 p-1.5">
+                        <ButtonGroup>
                             {Object.entries(config.utilities).map(
                                 ([key, utility]) => (
                                     <Button
@@ -59,7 +56,7 @@ export function QuranReaderUtilities({
                                         size="sm"
                                         onClick={() => handleUtilityChange(key)}
                                         className={[
-                                            'gap-1.5 transition-colors duration-150 font-sans dark:text-white dark:bg-muted h-13 text-md px-5',
+                                            'gap-1.5 transition-colors duration-150 font-sans dark:text-white dark:bg-muted h-13 text-md px-4',
                                             activeKey === key &&
                                                 ' dark:bg-muted/85 dark:text-white bg-white text-neutral-700 border border-neutral-500/50 shadow-sm',
                                         ].join(' ')}

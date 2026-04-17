@@ -5,6 +5,12 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
+export async function fetchData<T>(url: string): Promise<T> {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
+    return res.json();
+}
+
 export function fullNavigate(to: string) {
     window.location.href = to;
 }
@@ -49,28 +55,15 @@ export async function fetchJSON<T>(url: string): Promise<T> {
     return data;
 }
 
-
 const audioCache = new Map<string, HTMLAudioElement>();
 
-export function fetchAudio(url: string, fallbackUrls: string[] = []): HTMLAudioElement {
+export function fetchAudio(url: string): HTMLAudioElement {
     if (audioCache.has(url)) return audioCache.get(url)!;
     if (audioCache.size >= 10) {
         const oldestKey = audioCache.keys().next().value!;
         audioCache.delete(oldestKey);
     }
     const audio = new Audio(url);
-
-    if (fallbackUrls.length > 0) {
-        audio.addEventListener("error", () => {
-            if (audio.error?.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED || audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
-                const [nextUrl, ...rest] = fallbackUrls;
-                const fallback = fetchAudio(nextUrl, rest);
-                audio.src = fallback.src;
-                audio.load();
-            }
-        }, { once: true });
-    }
-
     audioCache.set(url, audio);
     return audio;
 }

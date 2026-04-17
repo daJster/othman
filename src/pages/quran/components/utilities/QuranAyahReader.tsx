@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/select';
 import { AudioReader } from '@/components/utils/AudioReader';
 import { createShaykhListConfig, type Shaykh } from '@/data/configData';
-import type { Ayah } from './AyahOverlay';
 import { useQuranReader } from '@/hooks/use-quran-reader';
+import type { Ayah } from '../AyahOverlay';
 
 export interface QuranAyahReaderProps {
     selectedAyah: Ayah;
@@ -33,7 +33,7 @@ export function QuranAyahReader({ selectedAyah }: QuranAyahReaderProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="bg-white/95 dark:bg-muted/95 backdrop-blur-sm font-sans rounded-xl px-3 py-2 shadow-2xl border border-neutral-200 dark:border-green-700/50 ring-1 ring-black/5 dark:ring-white/10"
+            className="bg-white/95 dark:bg-muted/95 backdrop-blur-sm font-sans rounded-xl px-3 py-5 shadow-2xl border border-neutral-200 dark:border-green-700/50 ring-1 ring-black/5 dark:ring-white/10"
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center justify-center gap-2">

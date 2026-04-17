@@ -93,12 +93,11 @@ export const QuranReaderPage = () => {
                 <div className="hidden md:flex flex-1 items-center justify-center w-full px-6 py-4 gap-1 max-w-5xl mx-auto">
                     {/* Left page (even number) */}
                     <div
-                        className="flex-1 max-h-[calc(100vh-9rem)] overflow-hidden rounded-sm shadow-md border border-stone-200"
-                        style={{ background: '#faf7f0' }}
+                        className="flex-1 max-h-[calc(100vh-9rem)] overflow-hidden"
                     >
                         <QuranPage
-                            src={nav.pageImageUrl(rightPage)}
-                            alt={`Page ${rightPage}`}
+                            src={nav.pageImageUrl(leftPage)}
+                            alt={`Page ${leftPage}`}
                             direction={direction}
                             side="right"
                             selectedAyahKey={nav.currentAyah?.ayahKey ?? null}
@@ -112,12 +111,11 @@ export const QuranReaderPage = () => {
 
                     {/* Right page (odd number) */}
                     <div
-                        className="flex-1 max-h-[calc(100vh-9rem)] overflow-hidden rounded-sm shadow-md border border-stone-200"
-                        style={{ background: '#faf7f0' }}
+                        className="flex-1 max-h-[calc(100vh-9rem)] overflow-hidden"
                     >
                         <QuranPage
-                            src={nav.pageImageUrl(leftPage)}
-                            alt={`Page ${leftPage}`}
+                            src={nav.pageImageUrl(rightPage)}
+                            alt={`Page ${rightPage}`}
                             direction={direction}
                             side="left"
                             selectedAyahKey={nav.currentAyah?.ayahKey ?? null}

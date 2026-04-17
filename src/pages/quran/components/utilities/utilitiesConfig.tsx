@@ -1,11 +1,12 @@
 import {
     BookOpenIcon,
-    LanguagesIcon,
     StickyNoteIcon,
     Volume2Icon,
 } from 'lucide-react';
-import type { Ayah } from './AyahOverlay';
+import type { Ayah } from '../AyahOverlay';
 import { QuranAyahReader } from './QuranAyahReader';
+import { TafsirUtility } from './TafsirUtility';
+import { NoteUtility } from './NoteUtility';
 
 export interface UtilityConfig {
     label: string;
@@ -31,22 +32,23 @@ export function createQuranReaderUtilitiesConfig(): QuranReaderUtilitiesConfig {
             read: {
                 label: 'Read',
                 icon: <Volume2Icon className="size-4" />,
-                panelFn: (selectedAyah) => <QuranAyahReader selectedAyah={selectedAyah} />,
+                panelFn: (selectedAyah) => (
+                    <QuranAyahReader selectedAyah={selectedAyah} />
+                ),
             },
             tafsir: {
                 label: 'Tafsir',
                 icon: <BookOpenIcon className="size-4" />,
-                panelFn: () => <></>,
-            },
-            iirab: {
-                label: 'Iʿrāb',
-                icon: <LanguagesIcon className="size-4" />,
-                panelFn: () => <></>,
+                panelFn: (selectedAyah) => (
+                    <TafsirUtility selectedAyah={selectedAyah} />
+                ),
             },
             note: {
                 label: 'Note',
                 icon: <StickyNoteIcon className="size-4" />,
-                panelFn: () => <></>,
+                panelFn: (selectedAyah) => (
+                    <NoteUtility selectedAyah={selectedAyah} />
+                ),
             },
         },
     };

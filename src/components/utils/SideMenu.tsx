@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/tooltip';
 import {
     createDefaultNavConfig,
+    type NavConfig,
     type NavItem,
 } from '@/data/configData.ts';
 import React from 'react';
@@ -28,6 +29,7 @@ import {
     SettingsIcon,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import type { UserRole } from '@/types';
 
 export interface SidebarWrapperProps {
     title?: string;
@@ -43,9 +45,9 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
     const isLong = title.length > maxTitleLength;
     const { t } = useTranslation();
     const { account } = useAuth();
-    const navConfig = createDefaultNavConfig();
+    const navConfig: NavConfig = createDefaultNavConfig();
 
-    const role = account?.role || 'guest';
+    const role: string = account?.role || 'guest';
     const navItems: NavItem[] = navConfig[role] || navConfig.guest;
 
     const AuthToggle = () => (
