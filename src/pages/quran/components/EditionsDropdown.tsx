@@ -11,7 +11,7 @@ import { type QuranEdition } from '@/providers/contexts/quran-reader-context';
 import EditionSummary from './EditionSummary';
 
 const EditionsDropdown: React.FC = () => {
-    const { editions, selectedEdition } = useQuranReader();
+    const { nav, editions, selectedEdition } = useQuranReader();
 
     if (!editions) return null;
 
@@ -25,7 +25,7 @@ const EditionsDropdown: React.FC = () => {
                     ([, ed]) => ed.name === value
                 );
                 if (selected) {
-                    console.log('Selected edition:', selected[1]);
+                    nav?.switchEdition(selected[0]);
                 }
             }}
         >

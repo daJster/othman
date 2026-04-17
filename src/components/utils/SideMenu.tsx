@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/tooltip';
 import {
     createDefaultNavConfig,
-    createHelpNavConfig,
     type NavItem,
 } from '@/data/configData.ts';
 import React from 'react';
@@ -45,7 +44,6 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
     const { t } = useTranslation();
     const { account } = useAuth();
     const navConfig = createDefaultNavConfig();
-    const helpNavConfig = createHelpNavConfig();
 
     const role = account?.role || 'guest';
     const navItems: NavItem[] = navConfig[role] || navConfig.guest;
@@ -112,7 +110,7 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
                         )}
                         <SidebarGroupContent>
                             <SidebarMenu className="space-y-1">
-                                {[...navItems, helpNavConfig].map((item) => (
+                                {[...navItems].map((item) => (
                                     <NavItemRow key={item.title} item={item} />
                                 ))}
                             </SidebarMenu>

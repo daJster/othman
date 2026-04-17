@@ -19,7 +19,6 @@ import { useQuranReader } from '@/hooks/use-quran-reader';
 import SurahToggle from './SurahToggle';
 import ExitToggle from './ExitToggle';
 import EditionsDropdown from './EditionsDropdown';
-import { Separator } from '@/components/ui/separator';
 
 export interface QuranReaderSidebarProps {
     title?: string;
@@ -67,11 +66,23 @@ const QuranReaderSidebar: React.FC<QuranReaderSidebarProps> = ({
                         </SidebarGroupLabel>
                         <ExitToggle />
 
-                        <Separator className='my-3'/>
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="h-px flex-1 bg-border" />
+                            <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+                                EDITION
+                            </span>
+                            <div className="h-px flex-1 bg-border" />
+                        </div>
 
                         <EditionsDropdown />
 
-                        <Separator className='my-3'/>
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="h-px flex-1 bg-border" />
+                            <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+                                SURAH
+                            </span>
+                            <div className="h-px flex-1 bg-border" />
+                        </div>
 
                         <SidebarGroupContent>
                             <SidebarMenu className="flex flex-col items-center w-full gap-2">

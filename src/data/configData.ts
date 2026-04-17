@@ -1,19 +1,26 @@
 import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 import {
     BookOpen,
-    CircleQuestionMarkIcon,
     ExternalLink,
     type LucideProps,
-    MessageCircle,
     CheckCircle2,
     Trash2,
     FileText,
     Megaphone,
     ChartLine,
+    Video,
+    University,
+    Cog,
 } from 'lucide-react';
 
 export const CDN_BASE_URL = 'https://cdn.kuttab-othman.workers.dev';
+export const ALQURAN_API_BASE_URL = 'http://api.alquran.cloud';
+export const ALQURAN_CDN_BASE_URL = 'https://cdn.islamic.network';
 export const QURAN_METADATA_URL = `${CDN_BASE_URL}/quran.json`;
+export const MAX_ABSOLUTE_AYAH_NUMBER = 6236;
+export const isAyahNumberValid = (n: number) =>
+    n >= 1 && n <= MAX_ABSOLUTE_AYAH_NUMBER;
+export const AUDIO_QUALITIES = [192, 128, 64, 48, 40, 3];
 
 export type NavItemVariant = 'default' | 'destructive';
 
@@ -31,7 +38,6 @@ export interface NavItem {
 
 export interface NavConfig {
     guest: NavItem[];
-    user: NavItem[];
     admin: NavItem[];
     superadmin: NavItem[];
 }
@@ -39,15 +45,12 @@ export interface NavConfig {
 export const createDefaultNavConfig: () => NavConfig = () => {
     return {
         guest: [
-            { title: 'nav.home', href: '/' },
-            { title: 'nav.meetings', href: '/kuttab' },
             {
                 title: 'nav.quran',
                 href: '/quran',
                 description: 'nav.quran.warshDesc',
             },
         ],
-        user: [{ title: 'nav.profile', href: '/profile' }],
         admin: [
             {
                 title: 'nav.admin',
@@ -85,30 +88,6 @@ export const createDefaultNavConfig: () => NavConfig = () => {
                         description: 'nav.analyticsDesc',
                     },
                 ],
-            },
-        ],
-    };
-};
-
-export const createHelpNavConfig: () => NavItem = () => {
-    return {
-        Icon: CircleQuestionMarkIcon,
-        title: 'help & documentation',
-        children: [
-            {
-                Icon: BookOpen,
-                title: 'help.doc',
-                href: '/docs',
-            },
-            {
-                Icon: MessageCircle,
-                title: 'help.contact',
-                href: '/support',
-            },
-            {
-                Icon: ExternalLink,
-                title: 'help.news',
-                href: '/changelog',
             },
         ],
     };
@@ -171,6 +150,16 @@ export const createAccountSettingsNavConfig: () => NavItem[][] = () => {
     return [
         [
             {
+                title: 'Meetings',
+                href: '/my-meetings',
+                Icon: Video,
+            },
+            {
+                title: 'Classroom',
+                href: '/my-classroom',
+                Icon: University,
+            },
+            {
                 title: 'Tasks',
                 href: '/tasks',
                 Icon: CheckCircle2,
@@ -205,6 +194,13 @@ export const createAccountSettingsNavConfig: () => NavItem[][] = () => {
         ],
         [
             {
+                title: 'Set Preferences',
+                href: '/account',
+                Icon: Cog,
+            },
+        ],
+        [
+            {
                 title: 'delete account',
                 href: '/account/settings/delete',
                 Icon: Trash2,
@@ -212,4 +208,263 @@ export const createAccountSettingsNavConfig: () => NavItem[][] = () => {
             },
         ],
     ];
+};
+
+export interface Shaykh {
+    name: string;
+    englishName: string;
+    language: 'ar' | 'en' | 'fr';
+    format: 'audio';
+    type: 'translation' | 'versebyverse';
+    identifier: string;
+    direction: string | null;
+}
+
+export const createShaykhListConfig = (): {
+    defaultReader: Shaykh;
+    readers: Shaykh[];
+} => {
+    return {
+        defaultReader: {
+            identifier: 'ar.husarymujawwad',
+            language: 'ar',
+            name: 'محمد خليل الحصري (المجود)',
+            englishName: 'Husary (Mujawwad)',
+            format: 'audio',
+            type: 'versebyverse',
+            direction: null,
+        },
+        readers: [
+            {
+                identifier: 'ar.husarymujawwad',
+                language: 'ar',
+                name: 'محمد خليل الحصري (المجود)',
+                englishName: 'Husary (Mujawwad)',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'ar.abdulbasitmurattal',
+                language: 'ar',
+                name: 'عبد الباسط عبد الصمد المرتل',
+                englishName: 'Abdul Basit',
+                format: 'audio',
+                type: 'translation',
+                direction: null,
+            },
+            {
+                identifier: 'ar.abdullahbasfar',
+                language: 'ar',
+                name: 'عبدالله بصفر',
+                englishName: 'Abdullah Basfar',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'ar.abdurrahmaansudais',
+                language: 'ar',
+                name: 'عبد الرحمن السديس',
+                englishName: 'Abdurrahmaan As-Sudais',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'ar.abdulsamad',
+                language: 'ar',
+                name: 'عبدالباسط عبد الصمد',
+                englishName: 'Abdul Samad',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'ar.shaatree',
+                language: 'ar',
+                name: 'أبو بكر الشاطري',
+                englishName: 'Abu Bakr Ash-Shaatree',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'ar.alafasy',
+                language: 'ar',
+                name: 'مشاري العفاسي',
+                englishName: 'Alafasy',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'ar.hudhaify',
+                language: 'ar',
+                name: 'علي بن عبد الرحمن الحذيفي',
+                englishName: 'Hudhaify',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'ar.mahermuaiqly',
+                language: 'ar',
+                name: 'ماهر المعيقلي',
+                englishName: 'Maher Al Muaiqly',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'ar.minshawi',
+                language: 'ar',
+                name: 'محمد صديق المنشاوي',
+                englishName: 'Minshawi',
+                format: 'audio',
+                type: 'translation',
+                direction: null,
+            },
+            {
+                identifier: 'ar.minshawimujawwad',
+                language: 'ar',
+                name: 'محمد صديق المنشاوي (المجود)',
+                englishName: 'Minshawy (Mujawwad)',
+                format: 'audio',
+                type: 'translation',
+                direction: null,
+            },
+            {
+                identifier: 'ar.muhammadayyoub',
+                language: 'ar',
+                name: 'محمد أيوب',
+                englishName: 'Muhammad Ayyoub',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'ar.muhammadjibreel',
+                language: 'ar',
+                name: 'محمد جبريل',
+                englishName: 'Muhammad Jibreel',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+            {
+                identifier: 'fr.leclerc',
+                language: 'fr',
+                name: 'Youssouf Leclerc',
+                englishName: 'Youssouf Leclerc',
+                format: 'audio',
+                type: 'versebyverse',
+                direction: null,
+            },
+        ],
+    };
+};
+
+export type PageSize = {
+    height: number;
+    width: number;
+};
+
+export type PageScale = {
+    scaleX: number;
+    scaleY: number;
+    offsetX: number;
+    offsetY: number;
+};
+
+export type EditionPageConfig = {
+    size: PageSize;
+    pages: {
+        [pageKey: string]: PageScale;
+    };
+};
+
+export const createQuranPageScaleConfig: () => {
+    [edition: string]: EditionPageConfig;
+} = () => {
+    return {
+        Tajweed: {
+            size: {
+                height: 600,
+                width: 412,
+            },
+            pages: {
+                '1': {
+                    scaleX: 0.9,
+                    scaleY: 0.88,
+                    offsetX: -5,
+                    offsetY: -20,
+                },
+                '2': {
+                    scaleX: 0.9,
+                    scaleY: 0.88,
+                    offsetX: -5,
+                    offsetY: -20,
+                },
+                default: {
+                    scaleX: 0.85,
+                    scaleY: 0.897,
+                    offsetX: -5,
+                    offsetY: 0,
+                },
+            },
+        },
+        MedinaOld: {
+            size: {
+                height: 600,
+                width: 412,
+            },
+            pages: {
+                '4': {
+                    scaleX: 0.95,
+                    scaleY: 0.92,
+                    offsetX: -10,
+                    offsetY: -8,
+                },
+                '5': {
+                    scaleX: 0.95,
+                    scaleY: 0.92,
+                    offsetX: -18,
+                    offsetY: -8,
+                },
+                default: {
+                    scaleX: 0.93,
+                    scaleY: 0.9,
+                    offsetX: -8,
+                    offsetY: -2,
+                },
+            },
+        },
+        Warsh1: {
+            size: {
+                height: 600,
+                width: 412,
+            },
+            pages: {
+                '4': {
+                    scaleX: 0.9,
+                    scaleY: 0.85,
+                    offsetX: -3,
+                    offsetY: 16,
+                },
+                '5': {
+                    scaleX: 0.83,
+                    scaleY: 0.858,
+                    offsetX: 10,
+                    offsetY: 16,
+                },
+                default: {
+                    scaleX: 0.865,
+                    scaleY: 0.89,
+                    offsetX: -2,
+                    offsetY: 2,
+                },
+            },
+        },
+    };
 };

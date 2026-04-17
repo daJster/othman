@@ -68,7 +68,7 @@ export function SurahProgressSummary({
                 </div>
 
                 <DrawerFooter>
-                    <Button className="w-full flex items-center justify-center gap-2">
+                    <Button className="w-full flex items-center justify-center gap-2 h-15">
                         Continue
                         <ArrowRight className="w-4 h-4" />
                     </Button>

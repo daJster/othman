@@ -1,18 +1,18 @@
 import { createContext } from 'react';
 import type { QuranReaderNav } from '../QuranReaderProvider';
 
-export type SurahLocation = 'madina' | 'makka' 
+export type SurahLocation = 'madina' | 'makka';
 
-export type Bbox = {"top" : number, "left": number, "bottom": number, "right": number}
+export type Bbox = { top: number; left: number; bottom: number; right: number };
 
-export type SurahMetadata =  {
+export type SurahMetadata = {
     name: string;
     name_en: string;
-    location: SurahLocation
-    number_of_ayat: number
-}
+    location: SurahLocation;
+    number_of_ayat: number;
+};
 
-export type QuranEdition =  {
+export type QuranEdition = {
     name: string;
     riwaya: string;
     base_url: string;
@@ -20,35 +20,38 @@ export type QuranEdition =  {
     bbox_reversed_url: string;
     first_page: number;
     last_page: number;
-}
+    theme_color: string;
+};
 
-export type EditionBboxes =  {"surahs" : {
-    [surahKey: string] : {
-        "ayat" : {
-            [AyahKey: string] : {
-                absolute_number: number;
-                page_num: number;
-                bboxes: Bbox[];
-            }
-        }
-    }
-}}
+export type EditionBboxes = {
+    surahs: {
+        [surahKey: string]: {
+            ayat: {
+                [AyahKey: string]: {
+                    absolute_number: number;
+                    page_num: number;
+                    bboxes: Bbox[];
+                };
+            };
+        };
+    };
+};
 
-export type EditionBboxesReversed = {"pages" : {
-    [pageKey: string] : {
-        "ayat" : {
-            [AyahKey: string] : {
+export type EditionBboxesReversed = {
+    [pageKey: string]: {
+        ayat: {
+            [AyahKey: string]: {
                 absolute_number: number;
                 bboxes: Bbox[];
                 surah: number;
-            }
-        }
-    }
-}}
+            };
+        };
+    };
+};
 
 export interface QuranReaderContextValue {
-    editions: {[key: string] : QuranEdition} | null;
-    metadata: {[key: string] : SurahMetadata} | null;
+    editions: { [key: string]: QuranEdition } | null;
+    metadata: { [key: string]: SurahMetadata } | null;
     bboxesPerSurah: EditionBboxes | null;
     bboxesPerPage: EditionBboxesReversed | null;
     selectedEdition: QuranEdition | null;
@@ -57,4 +60,6 @@ export interface QuranReaderContextValue {
     nav: QuranReaderNav | null;
 }
 
-export const QuranReaderContext = createContext<QuranReaderContextValue | null>(null);
+export const QuranReaderContext = createContext<QuranReaderContextValue | null>(
+    null
+);

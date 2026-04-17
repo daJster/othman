@@ -1,35 +1,22 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useQuranReader } from '@/hooks/use-quran-reader';
 import { useSwipe } from '@/hooks/use-swipe';
-import {
-    DURATION,
-    QuranPage,
-    type PageDirection,
-} from './components/QuranPage';
+import { QuranPage, type PageDirection } from './components/QuranPage';
 import { QuranReaderNavbar } from './components/QuranReaderNavbar';
 import { QuranReaderFooter } from './components/QuranReaderFooter';
+import { QuranReaderUtilities } from './components/QuranReaderUtilities';
+import type { Ayah } from './components/AyahOverlay';
 
 export const QuranReaderPage = () => {
-    const { nav } = useQuranReader();
+    const { nav, selectedEdition } = useQuranReader();
     const [direction, setDirection] = useState<PageDirection>(null);
-    const [tempPrevPage, setTempPrevPage] = useState<number | null>(null);
-    const tempPageTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Quran pages go RTL: next page = lower number in RTL contexts,
     // but we follow the nav helpers directly.
-    const navigate = useCallback(
-        (fn: () => void, dir: PageDirection) => {
-            setTempPrevPage(nav!.currentPage);
-            setDirection(dir);
-            if (tempPageTimer.current) clearTimeout(tempPageTimer.current);
-            tempPageTimer.current = setTimeout(
-                () => setTempPrevPage(null),
-                DURATION
-            );
-            fn();
-        },
-        [nav]
-    );
+    const navigate = useCallback((fn: () => void, dir: PageDirection) => {
+        setDirection(dir);
+        fn();
+    }, []);
 
     const handleNext = useCallback(
         () => navigate(nav!.goNextPage, 'right'),
@@ -40,6 +27,17 @@ export const QuranReaderPage = () => {
         () => navigate(nav!.goPrevPage, 'left'),
         [nav, navigate]
     );
+
+    const handleAyahSelect = useCallback(
+        (ayah: Ayah) => {
+            nav?.goToAbsoluteAyah(ayah.absoluteNumber);
+        },
+        [nav]
+    );
+
+    const handleClearSelection = useCallback(() => {
+        nav?.goToAbsoluteAyah(null);
+    }, [nav]);
 
     const swipe = useSwipe(handleNext, handlePrev);
 
@@ -65,76 +63,86 @@ export const QuranReaderPage = () => {
 
     return (
         <div
-            className="flex flex-col items-center justify-between w-full min-h-screen bg-[#f5f0e8] overflow-hidden"
-            style={{ fontFamily: "'Georgia', serif" }}
+            className="relative w-full min-h-screen overflow-hidden"
+            style={{
+                fontFamily: "'Georgia', serif",
+                backgroundColor: selectedEdition?.theme_color,
+            }}
         >
-            <QuranReaderNavbar />
+            <div className="flex flex-col items-center justify-between w-full min-h-screen">
+                <QuranReaderNavbar />
 
-            {/* ── Pages area ── */}
-
-            {/* MOBILE: single full-screen page with swipe */}
-            <div className="md:hidden flex-1 w-full overflow-hidden" {...swipe}>
-                {tempPrevPage && (
+                {/* MOBILE: single full-screen page with swipe */}
+                <div
+                    className={`md:hidden flex items-center w-full overflow-hidden`}
+                    {...swipe}
+                >
                     <QuranPage
-                        key={`prev-${tempPrevPage}`}
-                        src={nav.pageImageUrl(tempPrevPage)}
-                        alt={`Page ${tempPrevPage}`}
+                        key={`current-${page}`}
+                        src={nav.pageImageUrl(page)}
+                        alt={`Page ${page}`}
                         direction={direction}
-                        animClass={
-                            direction === 'left'
-                                ? 'animate-slide-out-left'
-                                : 'animate-slide-out-right'
-                        }
                         side="full"
+                        selectedAyahKey={nav.currentAyah?.ayahKey ?? null}
+                        onAyahSelect={handleAyahSelect}
+                        onClearSelection={handleClearSelection}
                     />
-                )}
+                </div>
 
-                <QuranPage
-                    key={`current-${page}`}
-                    src={nav.pageImageUrl(page)}
-                    alt={`Page ${page}`}
-                    direction={direction}
-                    side="full"
+                {/* DESKTOP: two-page spread, centered */}
+                <div className="hidden md:flex flex-1 items-center justify-center w-full px-6 py-4 gap-1 max-w-5xl mx-auto">
+                    {/* Left page (even number) */}
+                    <div
+                        className="flex-1 max-h-[calc(100vh-9rem)] overflow-hidden rounded-sm shadow-md border border-stone-200"
+                        style={{ background: '#faf7f0' }}
+                    >
+                        <QuranPage
+                            src={nav.pageImageUrl(rightPage)}
+                            alt={`Page ${rightPage}`}
+                            direction={direction}
+                            side="right"
+                            selectedAyahKey={nav.currentAyah?.ayahKey ?? null}
+                            onAyahSelect={handleAyahSelect}
+                            onClearSelection={handleClearSelection}
+                        />
+                    </div>
+
+                    {/* Spine shadow */}
+                    <div className="w-px self-stretch bg-linear-to-b from-transparent via-stone-300 to-transparent mx-1 rotate-180" />
+
+                    {/* Right page (odd number) */}
+                    <div
+                        className="flex-1 max-h-[calc(100vh-9rem)] overflow-hidden rounded-sm shadow-md border border-stone-200"
+                        style={{ background: '#faf7f0' }}
+                    >
+                        <QuranPage
+                            src={nav.pageImageUrl(leftPage)}
+                            alt={`Page ${leftPage}`}
+                            direction={direction}
+                            side="left"
+                            selectedAyahKey={nav.currentAyah?.ayahKey ?? null}
+                            onAyahSelect={handleAyahSelect}
+                            onClearSelection={handleClearSelection}
+                        />
+                    </div>
+                </div>
+
+                {/* Bottom Navigation  */}
+                <QuranReaderFooter
+                    handleNext={handleNext}
+                    handlePrev={handlePrev}
                 />
             </div>
 
-            {/* DESKTOP: two-page spread, centered */}
-            <div className="hidden md:flex flex-1 items-center justify-center w-full px-6 py-4 gap-1 max-w-5xl mx-auto">
-                {/* Left page (even number) */}
+            {/* Utilities overlay - absolute with h-screen, z above all */}
+            <div className="absolute inset-0 h-screen z-50 pointer-events-none">
                 <div
-                    className="flex-1 max-h-[calc(100vh-9rem)] overflow-hidden rounded-sm shadow-md border border-stone-200"
-                    style={{ background: '#faf7f0' }}
+                    className="pointer-events-auto"
+                    onClick={(e) => e.stopPropagation()}
                 >
-                    <QuranPage
-                        src={nav.pageImageUrl(rightPage)}
-                        alt={`Page ${rightPage}`}
-                        direction={direction}
-                        side="right"
-                    />
-                </div>
-
-                {/* Spine shadow */}
-                <div className="w-px self-stretch bg-linear-to-b from-transparent via-stone-300 to-transparent mx-1 rotate-180" />
-
-                {/* Right page (odd number) */}
-                <div
-                    className="flex-1 max-h-[calc(100vh-9rem)] overflow-hidden rounded-sm shadow-md border border-stone-200"
-                    style={{ background: '#faf7f0' }}
-                >
-                    <QuranPage
-                        src={nav.pageImageUrl(leftPage)}
-                        alt={`Page ${leftPage}`}
-                        direction={direction}
-                        side="left"
-                    />
+                    <QuranReaderUtilities selectedAyah={nav.currentAyah} />
                 </div>
             </div>
-
-            {/* Bottom Navigation  */}
-            <QuranReaderFooter
-                handleNext={handleNext}
-                handlePrev={handlePrev}
-            />
         </div>
     );
 };

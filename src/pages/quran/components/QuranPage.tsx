@@ -1,6 +1,11 @@
+import { useQuranReader } from '@/hooks/use-quran-reader';
+import { AyahOverlay, type Ayah } from './AyahOverlay';
+import { useMemo, useCallback } from 'react';
+import { createQuranPageScaleConfig } from '@/data/configData';
+
 export type PageDirection = 'left' | 'right' | null;
 
-export const DURATION = 360;
+export const DURATION = 200;
 
 export interface QuranPageProps {
     src: string;
@@ -8,6 +13,9 @@ export interface QuranPageProps {
     direction: PageDirection;
     animClass?: string | null;
     side?: 'left' | 'right' | 'full';
+    selectedAyahKey: string | null;
+    onAyahSelect: (ayah: Ayah) => void;
+    onClearSelection: () => void;
 }
 
 const slideIn: Record<
@@ -26,20 +34,40 @@ const slideIn: Record<
     },
 };
 
-
 export function QuranPage({
     src,
     alt,
     direction,
     side = 'full',
     animClass = null,
+    selectedAyahKey,
+    onAyahSelect,
+    onClearSelection,
 }: QuranPageProps) {
     const resolvedAnimClass =
         animClass ?? (direction ? slideIn[direction][side] : '');
+    const { nav, bboxesPerPage, selectedEdition } = useQuranReader();
+    const pageKey = nav?.currentPage;
+
+    const pageAyat = pageKey ? bboxesPerPage?.[pageKey]?.ayat : null;
+
+    const quranPageScaleConfig = useMemo(
+        () => createQuranPageScaleConfig(),
+        []
+    );
+
+    const pageSize = selectedEdition
+        ? quranPageScaleConfig[selectedEdition.name]?.size
+        : null;
+
+    const handleContainerClick = useCallback(() => {
+        onClearSelection();
+    }, [onClearSelection]);
 
     return (
         <div
-            className={`absolute top-0 left-0 py-30 flex items-center justify-center h-screen w-screen max-w-4xl overflow-hidden ${resolvedAnimClass} bg-[#FFFFD7]`}
+            className={`relative h-full w-full max-w-xl flex items-center justify-center quran-page-container ${resolvedAnimClass}`}
+            onClick={handleContainerClick}
             style={{
                 animationDuration: `${DURATION}ms`,
                 animationFillMode: 'both',
@@ -48,9 +76,21 @@ export function QuranPage({
             <img
                 src={src}
                 alt={alt}
-                className="h-full w-full max-w-xl"
+                style={{
+                    height: pageSize?.height,
+                    width: pageSize?.width,
+                }}
                 draggable={false}
             />
+
+            {pageKey && pageAyat && (
+                <AyahOverlay
+                    pageKey={pageKey}
+                    ayat={pageAyat}
+                    selectedAyahKey={selectedAyahKey}
+                    onAyahSelect={onAyahSelect}
+                />
+            )}
         </div>
     );
 }

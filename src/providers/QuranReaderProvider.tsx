@@ -16,24 +16,37 @@ import {
 } from './contexts';
 import { useTheme } from '@/hooks/use-theme';
 import { CircleXIcon } from 'lucide-react';
-import { CDN_BASE_URL, QURAN_METADATA_URL } from '@/data/configData';
+import {
+    AUDIO_QUALITIES,
+    CDN_BASE_URL,
+    createShaykhListConfig,
+    isAyahNumberValid,
+    QURAN_METADATA_URL,
+} from '@/data/configData';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { fetchAudio, fetchJSON } from '@/lib/utils';
+import type { Ayah } from '@/pages/quran/components/AyahOverlay';
 
 // ─── Navigation State ───────────────────────────────────────────────────────────
 
 export interface QuranReaderNav {
     currentPage: number;
     currentSurah: number;
-    currentAyah: number;
-    currentAbsoluteAyah: number;
+    currentAyah: Ayah | null;
     goToPage: (page: number) => void;
     goToSurah: (surah: number, ayah?: number) => void;
     goToAyah: (surah: number, ayah: number) => void;
+    goToAbsoluteAyah: (absAyah: number | null) => void;
     goNextPage: () => void;
     goPrevPage: () => void;
+    switchEdition: (editionKey: string) => void;
     pageImageUrl: (page: number) => string;
     formatPageNumber: (page: number) => string;
+    ayahAudioFn: (
+        absoluteAyah: number,
+        quranShaykhId: string
+    ) => Promise<HTMLAudioElement | null>;
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────────
@@ -43,7 +56,7 @@ const EDITION_STORAGE_KEY = 'quranreader:edition';
 const PAGE_STORAGE_KEY = 'lastVisitedPage';
 const CACHE_ASIDE_PAGES = 2; // how many pages to preload on each side
 
-// ─── Helpers ────────────────────────────────────────────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatPageNumber(page: number): string {
     return String(page).padStart(3, '0');
@@ -58,22 +71,19 @@ function pageImageUrl(edition: QuranEdition, page: number): string {
     return `${edition.base_url}/pages/${formatPageNumber(page)}.png`;
 }
 
-// ─── Simple in-memory + fetch cache ────────────────────────────────────────────
-
-const jsonCache = new Map<string, unknown>();
-
-async function fetchJSON<T>(url: string): Promise<T> {
-  if (jsonCache.has(url)) return jsonCache.get(url) as T;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
-  const data: T = await res.json();
-  jsonCache.set(url, data);
-  return data;
-}
-
 // ─── Image preload cache ────────────────────────────────────────────────────────
 
 const preloadedImages = new Set<string>();
+
+function clearImageCache() {
+    preloadedImages.forEach((src) => {
+        const img = document.querySelector<HTMLImageElement>(
+            `img[src="${src}"]`
+        );
+        if (img) img.src = '';
+    });
+    preloadedImages.clear();
+}
 
 function preloadImage(url: string) {
     if (preloadedImages.has(url)) return;
@@ -108,8 +118,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
     // ── Navigation state ─────────────────────────────────────────────────────────
     const [currentPage, setCurrentPage] = useState(1);
     const [currentSurah, setCurrentSurah] = useState(1);
-    const [currentAyah, setCurrentAyah] = useState(1);
-    const [currentAbsoluteAyah, setAbsoluteCurrentAyah] = useState(1);
+    const [currentAyah, setCurrentAyah] = useState<Ayah | null>(null);
 
     const editionRef = useRef<QuranEdition | null>(null);
 
@@ -131,40 +140,20 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
                 setMetadata(metadataData);
                 setProgress(20);
 
-                // Step 2 – resolve edition
+                // Step 2 – resolve edition (TODO switchable)
                 const storedKey = localStorage.getItem(EDITION_STORAGE_KEY);
                 const defaultKey = Object.keys(editionsData)[0];
                 const resolvedKey =
                     storedKey && editionsData[storedKey]
                         ? storedKey
                         : defaultKey;
-                setSelectedEditionKey(resolvedKey);
                 const edition = editionsData[resolvedKey];
-                editionRef.current = edition;
                 setProgress(25);
 
-                // Fetch both bbox files; report progress at midpoint
-                const bboxSurahPromise = fetchJSON<EditionBboxes>(
-                    edition.bbox_url
-                ).then((d) => {
-                    setProgress(25 + Math.round(0.5 * 75));
-                    return d;
-                });
-                const bboxPagePromise = fetchJSON<EditionBboxesReversed>(
-                    edition.bbox_reversed_url
-                ).then((d) => {
-                    setProgress(25 + Math.round(1 * 75));
-                    return d;
-                });
-
-                const [bboxPerSurah, bboxPerPage] = await Promise.all([
-                    bboxSurahPromise,
-                    bboxPagePromise,
-                ]);
-
-                setBboxesPerSurah(bboxPerSurah);
-                setBboxesPerPage(bboxPerPage);
-                setProgress(100);
+                const { BBpage } = await switchEditionInner(
+                    resolvedKey,
+                    edition
+                );
 
                 const lastVisitedPage = Number(
                     localStorage.getItem(PAGE_STORAGE_KEY)
@@ -178,34 +167,26 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
                 setCurrentPage(resolvedCurrentPage);
 
                 // Derive surah/ayah from bboxPage for start page
-                syncSurahAyahFromPage(resolvedCurrentPage, bboxPerPage);
+                syncSurahAyahFromPage(resolvedCurrentPage, BBpage!);
             } catch (err) {
                 setError(err instanceof Error ? err : new Error(String(err)));
             } finally {
-                setTimeout( // fake delay
-                    () => setLoading(false), 
-                    700
-                );
+                setLoading(false);
             }
         }
 
         boot();
     }, []);
 
-    // ── Derive surah/ayah from page bboxes ───────────────────────────────────────
     const syncSurahAyahFromPage = useCallback(
         (page: number, bboxPage: EditionBboxesReversed) => {
-            const pageData = bboxPage.pages[String(page)];
+            const pageData = bboxPage[String(page)];
             if (!pageData) return;
-            const firstAyahKey = Object.keys(pageData.ayat)[0]; // get first ayah of the page
+            const firstAyahKey = Object.keys(pageData.ayat)[0];
             if (!firstAyahKey) return;
             const firstAyah = pageData.ayat[firstAyahKey];
             setCurrentSurah(firstAyah.surah);
-            // ayah key is "surah:ayah"
-            const ayahNum = Number(firstAyahKey)
-            const absoluteAyahNum = firstAyah.absolute_number
-            setCurrentAyah(Number.isFinite(ayahNum) ? ayahNum : 1);
-            setAbsoluteCurrentAyah(Number.isFinite(absoluteAyahNum) ? absoluteAyahNum : 1)
+            setCurrentAyah(null);
         },
         []
     );
@@ -220,12 +201,6 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
         )
             .filter((p) => isPageValid(edition, p))
             .map((p) => preloadImage(pageImageUrl(edition, p)));
-    }, [currentPage]);
-
-    // Persist page to session storage & Sync to Surah/Ayah
-    useEffect(() => {
-        sessionStorage.setItem(PAGE_STORAGE_KEY, String(currentPage));
-        if (bboxesPerPage) syncSurahAyahFromPage(currentPage, bboxesPerPage);
     }, [currentPage]);
 
     // ── Navigation helpers ───────────────────────────────────────────────────────
@@ -269,26 +244,97 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
      * Navigate to the first page containing the first ayah of a surah.
      * Optionally supply an ayah number to land closer to that ayah.
      */
-    const goToSurah = useCallback(
-        (surah: number, ayah = 1) => {
+    const goToAyah = useCallback(
+        (surah: number, ayah: number) => {
             if (!bboxesPerSurah) return;
-            const surahData = bboxesPerSurah.surahs[String(surah)];
+            const surahData = bboxesPerSurah.surahs[`${surah}`];
             if (!surahData) return;
-            const ayahData = surahData.ayat[String(ayah)];
+            const ayahData = surahData.ayat[`${ayah}`];
             if (!ayahData) return;
-            setCurrentSurah(surah);
-            setCurrentAyah(ayah);
             goToPage(ayahData.page_num);
+            setCurrentAyah({
+                pageKey: ayahData.page_num,
+                ayahKey: `${ayah}`,
+                surah,
+                absoluteNumber: ayahData.absolute_number,
+            });
         },
         [bboxesPerSurah, goToPage]
     );
 
-    const goToAyah = useCallback(
-        (surah: number, ayah: number) => {
-            goToSurah(surah, ayah);
-            setCurrentAyah(ayah);
+    const goToAbsoluteAyah = useCallback(
+        (absoluteAyah: number | null) => {
+            if (!absoluteAyah) {
+                setCurrentAyah(null);
+                return;
+            }
+
+            if (!isAyahNumberValid(absoluteAyah) || !bboxesPerSurah) return;
+
+            for (const [s, surahData] of Object.entries(
+                bboxesPerSurah.surahs
+            )) {
+                for (const [a, ayahData] of Object.entries(surahData.ayat)) {
+                    if (ayahData.absolute_number === absoluteAyah) {
+                        goToAyah(Number(s), Number(a));
+                        return;
+                    }
+                }
+            }
         },
-        [goToSurah]
+        [bboxesPerSurah, goToAyah]
+    );
+
+    const goToSurah = useCallback(
+        (surah: number, ayah = 1) => {
+            setCurrentSurah(surah);
+            goToAyah(surah, ayah);
+        },
+        [goToAyah]
+    );
+
+    const switchEditionInner = useCallback(
+        async (editionKey: string, edition: QuranEdition) => {
+            setSelectedEditionKey(editionKey);
+            clearImageCache();
+            editionRef.current = edition;
+            setCurrentPage(edition.first_page);
+
+            const bboxSurahPromise = fetchJSON<EditionBboxes>(
+                edition.bbox_url
+            ).then((d) => {
+                setProgress(25 + Math.round(0.5 * 75));
+                return d;
+            });
+            const bboxPagePromise = fetchJSON<EditionBboxesReversed>(
+                edition.bbox_reversed_url
+            ).then((d) => {
+                setProgress(25 + Math.round(1 * 75));
+                return d;
+            });
+
+            const [bboxesPerSurah, bboxesPerPage] = await Promise.all([
+                bboxSurahPromise,
+                bboxPagePromise,
+            ]);
+
+            setBboxesPerSurah(bboxesPerSurah);
+            setBboxesPerPage(bboxesPerPage);
+
+            return { BBpage: bboxesPerPage, BBsurah: bboxesPerSurah };
+        },
+        []
+    );
+
+    const switchEdition = useCallback(
+        (editionKey: string) => {
+            if (!editions) return;
+            const resolvedEdition = editions[editionKey];
+            if (!resolvedEdition) return;
+
+            switchEditionInner(editionKey, resolvedEdition);
+        },
+        [editions, switchEditionInner]
     );
 
     const pageImageUrlFn = useCallback((page: number) => {
@@ -297,32 +343,76 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
         return pageImageUrl(edition, page);
     }, []);
 
+    const ayahAudioFn = useCallback(
+        async (
+            absoluteAyah: number,
+            quranShaykhId: string
+        ): Promise<HTMLAudioElement | null> => {
+            const { readers } = createShaykhListConfig();
+            const isValidShaykh = readers.some(
+                (sh) => sh.identifier === quranShaykhId
+            );
+
+            if (!isValidShaykh || !isAyahNumberValid(absoluteAyah)) {
+                return null;
+            }
+
+            const buildUrl = (
+                n: number,
+                quranShaykhId: string,
+                quality: number
+            ) =>
+                `https://cdn.islamic.network/quran/audio/${quality}/${quranShaykhId}/${n}.mp3`;
+
+            const getUrls = (n: number) =>
+                AUDIO_QUALITIES.map((q) => buildUrl(n, quranShaykhId, q));
+
+            const prefetchOffsets = [-1, 1, 2, 3];
+
+            prefetchOffsets
+                .map((offset) => absoluteAyah + offset)
+                .filter(isAyahNumberValid)
+                .forEach((n) => {
+                    const [primary, ...fallbacks] = getUrls(n);
+                    fetchAudio(primary, fallbacks);
+                });
+
+            const [primary, ...fallbacks] = getUrls(absoluteAyah);
+            return fetchAudio(primary, fallbacks);
+        },
+        []
+    );
+
     // ── Assemble context value ───────────────────────────────────────────────────
     const nav: QuranReaderNav = useMemo(
         () => ({
             currentPage,
             currentSurah,
             currentAyah,
-            currentAbsoluteAyah,
             goToPage,
             goToSurah,
             goToAyah,
+            goToAbsoluteAyah,
             goNextPage,
             goPrevPage,
+            switchEdition,
             pageImageUrl: pageImageUrlFn,
             formatPageNumber,
+            ayahAudioFn,
         }),
         [
             currentPage,
             currentSurah,
             currentAyah,
-            currentAbsoluteAyah,
             goToPage,
             goToSurah,
             goToAyah,
+            goToAbsoluteAyah,
             goNextPage,
             goPrevPage,
-            pageImageUrlFn
+            switchEdition,
+            pageImageUrlFn,
+            ayahAudioFn,
         ]
     );
 
@@ -385,7 +475,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             <div className="flex flex-col items-center justify-center min-h-screen gap-3 p-2 text-red-600 dark:text-red-200">
                 <CircleXIcon className="h-10 w-10 text-center" />
                 <p>Failed to launch Quran Reader.</p>
-                <Card className='rounded'>
+                <Card className="rounded">
                     <CardContent>
                         {`Error Message : ${error.message}`}
                     </CardContent>

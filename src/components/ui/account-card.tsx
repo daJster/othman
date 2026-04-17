@@ -29,7 +29,7 @@ function AccountCard({
     const { email, displayName, photoURL } = account;
     return (
         <button {...props} className={cn('block', className)}>
-            <Card className="flex flex-row border ring-0 rounded-md border-neutral-500/10 dark:border-neutral-700/30 cursor-pointer items-center justify-between px-4 py-3 transition-colors hover:bg-muted/50">
+            <Card className="flex flex-row border ring-0 rounded-md border-neutral-500/40 dark:border-neutral-300/30 cursor-pointer items-center justify-between px-4 py-3 transition-colors hover:bg-muted/50">
                 <div className='flex items-center gap-4'>
                     <Avatar size="lg">
                         {photoURL && (

@@ -29,7 +29,7 @@ HEADERS = {
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def infer_type(csv_path: Path) -> str:
-    """Extract Type from filename: book_Tajweed.csv → Tajweed"""
+    """Extract Type from filename: book_EDITION.csv → EDITION"""
     stem = csv_path.stem          # book_Tajweed
     parts = stem.split("_", 1)
     return parts[1] if len(parts) == 2 else stem
@@ -54,7 +54,7 @@ def url_to_filename(url: str) -> str:
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python download_pages.py book_Tajweed.csv")
+        print("Usage: python download_pages.py book_EDITION.csv")
         sys.exit(1)
 
     csv_path = Path(sys.argv[1])
@@ -63,7 +63,7 @@ def main():
         sys.exit(1)
 
     book_type  = infer_type(csv_path)
-    output_dir = Path("book") / book_type / "pages"
+    output_dir = Path("dist/cdn/public") / book_type / "pages"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     urls = load_urls(csv_path)

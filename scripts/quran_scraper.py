@@ -1,12 +1,12 @@
 """
-QuranFlash Tajweed Book Scraper
+QuranFlash EDITIONS Book Scraper
 ================================
-Scrapes pages: https://app.quranflash.com/book/Tajweed?en#/reader/chapter/NUMBER
+Scrapes pages: https://app.quranflash.com/book/EDITION?en#/reader/chapter/NUMBER
 Number range: 1 to 603, odd numbers only
 
 Outputs (in ./dist/):
-  - book_Tajweed.csv
-  - book_Tajweed_bbox.json
+  - book_EDITION.csv
+  - book_EDITION_bbox.json
 """
 
 import asyncio
@@ -21,28 +21,52 @@ from tqdm.asyncio import tqdm
 
 # ─── Config ──────────────────────────────────────────────────────────────────
 
-BASE_URL = "https://app.quranflash.com/book/Tajweed?en#/reader/chapter/{number}"
-IMG_PREFIX = "https://app.quranflash.com/"
-CHAPTERS = list(range(1, 604, 2))   # 1, 3, 5, … 603  (odd numbers)
-SPREAD_IDS = ["spreadL", "spreadR"]
-OUTPUT_DIR = Path("dist")
-CSV_FILE = OUTPUT_DIR / "book_Tajweed.csv"
-JSON_FILE = OUTPUT_DIR / "book_Tajweed_bbox.json"
+from dataclasses import dataclass
 
-# How long (ms) to wait for the page content to stabilise after navigation
+
+@dataclass(frozen=True)
+class Edition:
+    name: str
+    last_chapter: int
+    slug: str
+
+
+EDITIONS = (
+    Edition(name="Tajweed", last_chapter=604, slug="Tajweed"),
+    Edition(name="MedinaOld", last_chapter=605, slug="MedinaOld"),
+    Edition(name="Warsh1", last_chapter=559, slug="Warsh1"),
+)
+
+DEFAULT_EDITION = 2  # index into EDITIONS
+
+_active = EDITIONS[DEFAULT_EDITION]
+
+BASE_URL = (
+    f"https://app.quranflash.com/book/{_active.slug}?en#/reader/chapter/{{number}}"
+)
+IMG_PREFIX = "https://app.quranflash.com/"
+CHAPTERS = list(range(1, _active.last_chapter, 2))  # odd numbers
+SPREAD_IDS = ["spreadL", "spreadR"]
+
+OUTPUT_DIR = Path("dist")
+CSV_FILE = OUTPUT_DIR / f"book_{_active.slug}.csv"
+JSON_FILE = OUTPUT_DIR / f"book_{_active.slug}_bbox.json"
+
 PAGE_TIMEOUT = 30_000
-CONTENT_WAIT  = 3_000   # extra settle time (ms) after network-idle
+CONTENT_WAIT = 3_000
 
 # ─── Quran metadata ──────────────────────────────────────────────────────────
 
+
 # Ayah count per surah (index 0 = surah 1)
-def _load_quran_meta(path: str = "../public/quran.json") -> list[int]:
+def _load_quran_meta(path: str = "./resources/cdn/static/quran.json") -> list[int]:
     """Read numberOfAyat for each surah from quran.json, ordered by surah number."""
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     surahs = data["quran"]
     return [surahs[str(i)]["numberOfAyat"] for i in range(1, len(surahs) + 1)]
- 
+
+
 AYAH_COUNTS = _load_quran_meta()
 
 # Cumulative ayah offset before each surah (surah 1 starts at absolute 1)
@@ -50,21 +74,25 @@ _CUMULATIVE = [0]
 for _c in AYAH_COUNTS:
     _CUMULATIVE.append(_CUMULATIVE[-1] + _c)
 
+
 def absolute_ayah(surah: int, ayah: int) -> int:
     """Return the 1-based absolute ayah number in the whole Quran."""
     return _CUMULATIVE[surah - 1] + ayah
 
+
 def page_num_from_url(image_url: str) -> int:
     """Extract page number from image URL, e.g. .../imgs/042.png → 42."""
-    stem = Path(image_url).stem   # e.g. "042"
+    stem = Path(image_url).stem  # e.g. "042"
     try:
         return int(stem)
     except ValueError:
         return 0
 
+
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 
 VBTN_RE = re.compile(r"^v(\d+)_(\d+)(?:_(\d+))?$")
+
 
 def parse_vbtn_id(vbtn_id: str):
     """
@@ -75,15 +103,17 @@ def parse_vbtn_id(vbtn_id: str):
     if not m:
         return None
     surah = int(m.group(1))
-    ayah  = int(m.group(2))
-    bbox  = int(m.group(3)) if m.group(3) else 1
+    ayah = int(m.group(2))
+    bbox = int(m.group(3)) if m.group(3) else 1
     return surah, ayah, bbox
+
 
 def parse_style_px(style: str, prop: str) -> float | None:
     """Extract a numeric pixel value from an inline style string."""
     pat = re.compile(rf"{prop}\s*:\s*(-?[\d.]+)px")
     m = pat.search(style)
     return float(m.group(1)) if m else None
+
 
 def img_full_url(src: str) -> str:
     """Turn a relative ../../ path into an absolute URL."""
@@ -96,7 +126,9 @@ def img_full_url(src: str) -> str:
     path = re.sub(r"^(\.\.\/)+", "", src)
     return IMG_PREFIX + path
 
+
 # ─── Core scraping logic ──────────────────────────────────────────────────────
+
 
 async def scrape_page(page, chapter_number: int):
     """
@@ -141,7 +173,7 @@ async def scrape_page(page, chapter_number: int):
 
             for i in range(count):
                 btn = vbtns.nth(i)
-                btn_id    = await btn.get_attribute("id") or ""
+                btn_id = await btn.get_attribute("id") or ""
                 btn_style = await btn.get_attribute("style") or ""
 
                 parsed = parse_vbtn_id(btn_id)
@@ -152,36 +184,44 @@ async def scrape_page(page, chapter_number: int):
                 if spread_surah is None:
                     spread_surah = surah
 
-                top    = parse_style_px(btn_style, "top")
-                left   = parse_style_px(btn_style, "left")
-                width  = parse_style_px(btn_style, "width")
+                top = parse_style_px(btn_style, "top")
+                left = parse_style_px(btn_style, "left")
+                width = parse_style_px(btn_style, "width")
                 height = parse_style_px(btn_style, "height")
 
-                bbox_records.append({
-                    "surah":      surah,
-                    "ayah":       ayah,
-                    "bbox_index": bbox_idx,
-                    "spread":     spread_id,
-                    "image_url":  img_src,
-                    "top":        top,
-                    "left":       left,
-                    "width":      width,
-                    "height":     height,
-                })
+                bbox_records.append(
+                    {
+                        "surah": surah,
+                        "ayah": ayah,
+                        "bbox_index": bbox_idx,
+                        "spread": spread_id,
+                        "image_url": img_src,
+                        "top": top,
+                        "left": left,
+                        "width": width,
+                        "height": height,
+                    }
+                )
 
             # One CSV row per spread (surah inferred from vBtns, or chapter_number fallback)
             if img_src:
-                csv_rows.append({
-                    "surah":     spread_surah if spread_surah is not None else chapter_number,
-                    "image_url": img_src,
-                })
+                csv_rows.append(
+                    {
+                        "surah": spread_surah
+                        if spread_surah is not None
+                        else chapter_number,
+                        "image_url": img_src,
+                    }
+                )
 
         except Exception as exc:
             print(f"  [WARN] Chapter {chapter_number} / #{spread_id}: {exc}")
 
     return bbox_records, csv_rows
 
+
 # ─── Build output structures ──────────────────────────────────────────────────
+
 
 def build_json(all_records: list[dict]) -> dict:
     """
@@ -216,21 +256,23 @@ def build_json(all_records: list[dict]) -> dict:
         if a_key not in ayat:
             ayat[a_key] = {
                 "absolute_number": absolute_ayah(r["surah"], r["ayah"]),
-                "page_num":        page_num_from_url(r["image_url"]),
-                "bboxes":          [],
+                "page_num": page_num_from_url(r["image_url"]),
+                "bboxes": [],
             }
 
-        top    = r["top"]    or 0
-        left   = r["left"]   or 0
-        width  = r["width"]  or 0
+        top = r["top"] or 0
+        left = r["left"] or 0
+        width = r["width"] or 0
         height = r["height"] or 0
 
-        ayat[a_key]["bboxes"].append({
-            "top":    top,
-            "left":   left,
-            "bottom": top + height,
-            "right":  left + width,
-        })
+        ayat[a_key]["bboxes"].append(
+            {
+                "top": top,
+                "left": left,
+                "bottom": top + height,
+                "right": left + width,
+            }
+        )
 
     # Sort bboxes top-to-bottom, left-to-right within each ayah
     for s_data in surahs.values():
@@ -238,6 +280,7 @@ def build_json(all_records: list[dict]) -> dict:
             a_data["bboxes"].sort(key=lambda b: (b["top"], b["left"]))
 
     return {"surahs": surahs}
+
 
 def write_csv(csv_rows: list[dict], path: Path):
     """One row per page spread: surah number + image URL."""
@@ -247,11 +290,14 @@ def write_csv(csv_rows: list[dict], path: Path):
         writer.writeheader()
         writer.writerows(csv_rows)
 
+
 def write_json(data: dict, path: Path):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
+
 # ─── Main ─────────────────────────────────────────────────────────────────────
+
 
 async def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -308,8 +354,10 @@ async def main():
 
     # Quick summary
     surah_count = len(data["surahs"])
-    ayah_count  = sum(len(s["ayat"]) for s in data["surahs"].values())
-    print(f"\nSummary: {surah_count} surahs | {ayah_count} ayat | {len(all_bbox_records)} bboxes")
+    ayah_count = sum(len(s["ayat"]) for s in data["surahs"].values())
+    print(
+        f"\nSummary: {surah_count} surahs | {ayah_count} ayat | {len(all_bbox_records)} bboxes"
+    )
 
 
 if __name__ == "__main__":

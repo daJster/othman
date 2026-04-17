@@ -47,4 +47,4 @@ def reverse_quran_map(input_path, output_path):
 
 
 if __name__ == "__main__":
-    reverse_quran_map('./dist/book_Tajweed_bbox.json', './dist/book_Tajweed_bbox_reversed.json')
+    reverse_quran_map('./dist/book_Warsh1_bbox.json', './dist/book_Warsh1_bbox_reversed.json')

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SurahHeatmap } from './components/SurahHeatmap';
-import { Legend } from './components/Legend';
 import { SurahProgressSummary } from './components/SurahProgressSummary';
 import type { SurahProgressInfo } from './types';
 import { useTranslation } from 'react-i18next';
@@ -53,7 +52,6 @@ export default function ProgressPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Legend />
                             <SurahHeatmap
                                 selectedSurah={selectedSurah}
                                 onSelect={handleSelect}
