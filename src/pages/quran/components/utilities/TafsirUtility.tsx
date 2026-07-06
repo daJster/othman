@@ -11,10 +11,11 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Spinner } from '@/components/ui/spinner';
-import { BookOpenIcon, LanguagesIcon, BookTextIcon } from 'lucide-react';
+import { BookOpenIcon, LanguagesIcon, BookTextIcon, Info } from 'lucide-react';
 import { QURANPEDIA_BASE_URL } from '@/data/configData';
 import { fetchData } from '@/lib/utils';
-import type { Ayah } from '../AyahOverlay';
+import { useQuranReader } from '@/hooks/use-quran-reader';
+import { AyahDisplayer } from '@/components/utils/AyahDisplayer';
 
 interface QuranPediaOption {
     id: number;
@@ -25,20 +26,29 @@ interface QuranPediaOption {
 }
 
 interface TafsirUtilityProps {
-    selectedAyah: Ayah;
+    onClose: () => void;
 }
 
-const CONTENT_TYPES = [
+type CONTENT_TYPES = 'surah' | 'tafsir' | 'e3rab' | 'translation';
+
+const CONTENT_TYPE_CONFIG = [
+    { value: 'surah', label: 'السورة', icon: Info },
     { value: 'tafsir', label: 'التفسير', icon: BookOpenIcon },
     { value: 'e3rab', label: 'الإعراب', icon: LanguagesIcon },
     { value: 'translation', label: 'الترجمة', icon: BookTextIcon },
 ] as const;
 
-export function TafsirUtility({ selectedAyah }: TafsirUtilityProps) {
+function getContentTypeLabel(type: CONTENT_TYPES): string {
+    return CONTENT_TYPE_CONFIG.find((c) => c.value === type)?.label ?? '';
+}
+
+export function TafsirUtility({ onClose }: TafsirUtilityProps) {
+    const { nav } = useQuranReader();
+    const currentAyah = nav?.currentAyah;
+    const currentAyahContent = nav?.currentAyahContent;
     const [open, setOpen] = useState(true);
-    const [contentType, setContentType] = useState<
-        'tafsir' | 'e3rab' | 'translation'
-    >('tafsir');
+
+    const [contentType, setContentType] = useState<CONTENT_TYPES>('tafsir');
     const [availableOptions, setAvailableOptions] = useState<
         QuranPediaOption[]
     >([]);
@@ -50,15 +60,16 @@ export function TafsirUtility({ selectedAyah }: TafsirUtilityProps) {
     const [optionsLoading, setOptionsLoading] = useState(false);
 
     useEffect(() => {
-        if (open && selectedAyah) {
+        if (open && currentAyah) {
             fetchAvailableOptions();
         }
-    }, [open, selectedAyah, contentType]);
+    }, [open, currentAyah]);
 
     const fetchAvailableOptions = async () => {
+        if (!currentAyah) return;
         setOptionsLoading(true);
         try {
-            const url = `${QURANPEDIA_BASE_URL}/v1/ayah/${selectedAyah.surah}/${selectedAyah.absoluteNumber}/${contentType}`;
+            const url = `${QURANPEDIA_BASE_URL}/v1/ayah/${currentAyah.surah}/${currentAyah.absoluteNumber}/${contentType}`;
             const data = await fetchData<QuranPediaOption[]>(url);
             setAvailableOptions(data);
             if (data.length > 0) {
@@ -79,11 +90,11 @@ export function TafsirUtility({ selectedAyah }: TafsirUtilityProps) {
     }, [selectedOptionId, open]);
 
     const fetchContent = async () => {
-        if (!selectedOptionId) return;
+        if (!selectedOptionId || !currentAyah) return;
         setLoading(true);
         try {
-            const url = `${QURANPEDIA_BASE_URL}/v1/ayah/${selectedAyah.surah}/${selectedAyah.ayahKey}/${contentType}?${contentType}=${selectedOptionId}`;
-            const data = await fetchData<{ text?: string }[]>(url);
+            const url = `${QURANPEDIA_BASE_URL}/v1/ayah/${currentAyah.surah}/${currentAyah.ayahKey}/${contentType}?${contentType}=${selectedOptionId}`;
+            const data = {text: ''}; // await fetchData<{ text?: string }[]>(url);
             if (Array.isArray(data) && data[0]?.text) {
                 setContent(data[0].text);
             } else if (data && typeof data === 'object' && 'text' in data) {
@@ -99,100 +110,124 @@ export function TafsirUtility({ selectedAyah }: TafsirUtilityProps) {
         }
     };
 
+    if (!currentAyah) return null;
+
     return (
-        <Drawer open={open} onOpenChange={setOpen}>
-            <DrawerContent className="h-[60vh] max-h-[60vh]">
-                <DrawerHeader className="pb-2">
+        <Drawer
+            open={open}
+            onOpenChange={(isOpen) => {
+                setOpen(isOpen);
+                if (!isOpen) {
+                    onClose();
+                }
+            }}
+        >
+            <DrawerContent className="flex flex-col max-h-[85vh]">
+                {/* Fixed Header */}
+                <DrawerHeader className="flex-shrink-0 pb-2">
                     <DrawerTitle className="text-lg font-semibold">
-                        {contentType === 'tafsir'
-                            ? 'التفسير'
-                            : contentType === 'e3rab'
-                              ? 'الإعراب'
-                              : 'الترجمة'}
+                        {getContentTypeLabel(contentType)}
                     </DrawerTitle>
                     <DrawerDescription className="text-sm text-muted-foreground">
-                        Surah {selectedAyah.surah} - Ayah {selectedAyah.ayahKey}
+                        Surah {currentAyah.surah} - Ayah {currentAyah.ayahKey}
                     </DrawerDescription>
                 </DrawerHeader>
 
-                <div className="flex w-full justify-center">
-                    <ToggleGroup
-                        type="single"
-                        value={contentType}
-                        onValueChange={(value: string) => {
-                            if (value) {
-                                setContentType(
-                                    value as 'tafsir' | 'e3rab' | 'translation'
-                                );
-                                setSelectedOptionId(null);
-                                setContent('');
-                            }
-                        }}
-                        className="justify-center shadow-2xl"
-                    >
-                        {CONTENT_TYPES.map((type) => (
-                            <ToggleGroupItem
-                                key={type.value}
-                                value={type.value}
-                                aria-label={type.label}
-                                className="border border-neutral-300/20"
+                {/* Scrollable Content Area */}
+                <ScrollArea className="flex-1 overflow-y-auto">
+                    <div className="px-4 pb-4 space-y-4">
+                        {/* Toggle Group */}
+                        <div className="flex w-full justify-center">
+                            <ToggleGroup
+                                type="single"
+                                value={contentType}
+                                onValueChange={(value: string) => {
+                                    if (value) {
+                                        setContentType(value as CONTENT_TYPES);
+                                        setSelectedOptionId(null);
+                                        setContent('');
+                                    }
+                                }}
+                                className="justify-center shadow-2xl"
                             >
-                                <type.icon className="size-4" />
-                                <span>{type.label}</span>
-                            </ToggleGroupItem>
-                        ))}
-                    </ToggleGroup>
-                </div>
-
-                <div className="px-4 pb-2">
-                    {optionsLoading ? (
-                        <div className="flex justify-center h-100 w-full items-center">
-                            <Spinner className="size-20" />
-                        </div>
-                    ) : (
-                        <ScrollArea className="w-full whitespace-nowrap py-1">
-                            <div className="flex gap-2">
-                                {availableOptions.map((option) => (
-                                    <button
-                                        key={option.id}
-                                        onClick={() =>
-                                            setSelectedOptionId(option.id)
-                                        }
-                                        className={[
-                                            'flex-shrink-0 rounded-lg border px-3 py-1.5 text-sm transition-colors',
-                                            selectedOptionId === option.id
-                                                ? 'border-primary bg-primary/10 text-primary'
-                                                : 'border-border hover:bg-muted',
-                                        ].join(' ')}
+                                {CONTENT_TYPE_CONFIG.map((type) => (
+                                    <ToggleGroupItem
+                                        key={type.value}
+                                        value={type.value}
+                                        aria-label={type.label}
+                                        className="cursor-pointer border border-neutral-300/20 min-w-[6.25rem] min-h-[3.75rem]"
                                     >
-                                        <div className="font-medium">
-                                            {option.name}
-                                        </div>
-                                        {option.author && (
-                                            <div className="text-xs text-muted-foreground">
-                                                {option.author}
-                                            </div>
-                                        )}
-                                    </button>
+                                        <type.icon className="size-4" />
+                                        <span>{type.label}</span>
+                                    </ToggleGroupItem>
                                 ))}
-                            </div>
-                        </ScrollArea>
-                    )}
-                </div>
+                            </ToggleGroup>
+                        </div>
 
-                <div className="flex-1 overflow-y-auto px-4 pb-4">
-                    {loading ? (
-                        <div className="flex justify-center py-8">
-                            <Spinner className="size-6" />
+                        {/* Ayah Display */}
+                        {currentAyahContent && (
+                            <AyahDisplayer
+                                ayahContent={currentAyahContent}
+                                className="rounded-md bg-muted border border-neutral-300/20"
+                            />
+                        )}
+
+                        {/* Options Section */}
+                        <div>
+                            {optionsLoading ? (
+                                <div className="flex justify-center py-8">
+                                    <Spinner className="size-20" />
+                                </div>
+                            ) : (
+                                <ScrollArea className="w-full">
+                                    <div className="flex gap-2 pb-2">
+                                        {availableOptions.map((option) => (
+                                            <button
+                                                key={option.id}
+                                                onClick={() =>
+                                                    setSelectedOptionId(
+                                                        option.id
+                                                    )
+                                                }
+                                                className={[
+                                                    'flex-shrink-0 rounded-lg border px-3 py-1.5 text-sm transition-colors',
+                                                    selectedOptionId ===
+                                                    option.id
+                                                        ? 'border-primary bg-primary/10 text-primary'
+                                                        : 'border-border hover:bg-muted',
+                                                ].join(' ')}
+                                            >
+                                                <div className="font-medium">
+                                                    {option.name}
+                                                </div>
+                                                {option.author && (
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {option.author}
+                                                    </div>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            )}
                         </div>
-                    ) : (
-                        <div className="prose prose-sm dark:prose-invert max-w-none">
-                            <p className="leading-7 whitespace-pre-wrap">
-                                {content}
-                            </p>
+
+                        {/* Content Display */}
+                        <div className="min-h-[8rem]">
+                            {loading ? (
+                                <div className="flex justify-center py-8">
+                                    <Spinner className="size-6" />
+                                </div>
+                            ) : (
+                                <div className="prose prose-sm dark:prose-invert max-w-none">
+                                    <p className="leading-7 whitespace-pre-wrap">
+                                        {content}
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
+                    </div>
+                </ScrollArea>
             </DrawerContent>
         </Drawer>
     );

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 export const CDN_BASE_URL = 'https://cdn.kuttab-othman.workers.dev';
-export const ALQURAN_API_BASE_URL = 'http://api.alquran.cloud';
+export const ALQURAN_API_BASE_URL = 'https://api.alquran.cloud';
 export const ALQURAN_CDN_BASE_URL = 'https://cdn.islamic.network';
 export const QURAN_METADATA_URL = `${CDN_BASE_URL}/quran.json`;
 export const QURANPEDIA_BASE_URL = 'https://api.quranpedia.net';
@@ -47,9 +47,10 @@ export const createDefaultNavConfig: () => NavConfig = () => {
     return {
         guest: [
             {
-                title: 'nav.quran',
+                title: 'ٱلْقُرْآنُ ٱلْكَرِيمُ',
                 href: '/quran',
-                description: 'nav.quran.warshDesc',
+                description: 'nav.quranDesc',
+                Icon: BookOpen
             },
         ],
         admin: [

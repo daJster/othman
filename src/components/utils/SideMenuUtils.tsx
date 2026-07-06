@@ -28,7 +28,7 @@ export const NavItemRow = ({
             return (
                 <button
                     onClick={() => fullNavigate(item.href ?? '/')}
-                    className='h-12'
+                    className='h-12 rounded-md border border-neutral-300/30'
                 >
                     {item.Icon && <item.Icon className={'w-4 h-4'} />}
                     <span>{item.title}</span>

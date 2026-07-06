@@ -67,3 +67,24 @@ export function fetchAudio(url: string): HTMLAudioElement {
     audioCache.set(url, audio);
     return audio;
 }
+
+
+interface WordToken {
+    word: string;
+    start: number;
+    end: number;
+}
+
+export function tokenizeArabic(text: string): WordToken[] {
+    const tokens: WordToken[] = [];
+    const regex = /[\u0600-\u06FF]+|[^\s\u0600-\u06FF]+/g;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(text)) !== null) {
+        tokens.push({
+            word: match[0],
+            start: match.index,
+            end: match.index + match[0].length,
+        });
+    }
+    return tokens;
+}

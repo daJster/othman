@@ -1,5 +1,6 @@
 import { useQuranReader } from '@/hooks/use-quran-reader';
-import { AyahOverlay, type Ayah } from './AyahOverlay';
+import { AyahOverlay } from './AyahOverlay';
+import { type Ayah } from '@/providers/QuranReaderProvider';
 import { useMemo, useCallback } from 'react';
 import { createQuranPageScaleConfig } from '@/data/configData';
 

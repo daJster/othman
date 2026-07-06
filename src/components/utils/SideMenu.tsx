@@ -29,7 +29,7 @@ import {
     SettingsIcon,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import type { UserRole } from '@/types';
+import { useTheme } from '@/hooks/use-theme';
 
 export interface SidebarWrapperProps {
     title?: string;
@@ -46,6 +46,7 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
     const { t } = useTranslation();
     const { account } = useAuth();
     const navConfig: NavConfig = createDefaultNavConfig();
+    const { theme } = useTheme();
 
     const role: string = account?.role || 'guest';
     const navItems: NavItem[] = navConfig[role] || navConfig.guest;
@@ -112,6 +113,8 @@ const SideMenu: React.FC<SidebarWrapperProps> = ({
                         )}
                         <SidebarGroupContent>
                             <SidebarMenu className="space-y-1">
+                                <div className='flex items-center justify-center w-full'>
+                                </div>
                                 {[...navItems].map((item) => (
                                     <NavItemRow key={item.title} item={item} />
                                 ))}

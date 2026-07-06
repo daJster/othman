@@ -12,20 +12,17 @@ import {
 import { AudioReader } from '@/components/utils/AudioReader';
 import { createShaykhListConfig, type Shaykh } from '@/data/configData';
 import { useQuranReader } from '@/hooks/use-quran-reader';
-import type { Ayah } from '../AyahOverlay';
 
-export interface QuranAyahReaderProps {
-    selectedAyah: Ayah;
-    audioFn?: () => Promise<HTMLAudioElement | null>;
-}
-
-export function QuranAyahReader({ selectedAyah }: QuranAyahReaderProps) {
+export function QuranAyahReader() {
     const { defaultReader, readers } = createShaykhListConfig();
     const { nav } = useQuranReader();
+    const currentAyah = nav?.currentAyah ?? null;
     const [selectedShaykhId, setSelectedShaykhId] = useState<string>(
         defaultReader.identifier
     );
     const [autoReadEnabled, setAutoReadEnabled] = useState(false);
+
+    if (!currentAyah) return null;
 
     return (
         <motion.div
@@ -59,9 +56,9 @@ export function QuranAyahReader({ selectedAyah }: QuranAyahReaderProps) {
                         <SelectValue placeholder="Select Shaykh">
                             {selectedShaykhId
                                 ? readers.find(
-                                      (r: Shaykh) =>
-                                          r.identifier === selectedShaykhId
-                                  )?.name
+                                    (r: Shaykh) =>
+                                        r.identifier === selectedShaykhId
+                                )?.name
                                 : 'Select Shaykh'}
                         </SelectValue>
                     </SelectTrigger>
@@ -82,20 +79,21 @@ export function QuranAyahReader({ selectedAyah }: QuranAyahReaderProps) {
                 </Select>
             </div>
 
+            
             <AudioReader
                 key={selectedShaykhId}
                 audioFn={async () =>
                     nav?.ayahAudioFn(
-                        selectedAyah.absoluteNumber,
+                        currentAyah.absoluteNumber,
                         selectedShaykhId
                     ) ?? null
                 }
                 autoReadEnabled={autoReadEnabled}
                 onNext={() =>
-                    nav?.goToAbsoluteAyah(selectedAyah.absoluteNumber + 1)
+                    nav?.goToAbsoluteAyah(currentAyah.absoluteNumber + 1)
                 }
                 onPrev={() =>
-                    nav?.goToAbsoluteAyah(selectedAyah.absoluteNumber - 1)
+                    nav?.goToAbsoluteAyah(currentAyah.absoluteNumber - 1)
                 }
             />
         </motion.div>

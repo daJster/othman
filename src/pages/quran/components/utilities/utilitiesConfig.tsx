@@ -1,17 +1,17 @@
 import {
+    AudioLines,
     BookOpenIcon,
     StickyNoteIcon,
     Volume2Icon,
 } from 'lucide-react';
-import type { Ayah } from '../AyahOverlay';
-import { QuranAyahReader } from './QuranAyahReader';
+import { QuranAyahReader } from './AyahReaderUtility';
 import { TafsirUtility } from './TafsirUtility';
 import { NoteUtility } from './NoteUtility';
 
 export interface UtilityConfig {
     label: string;
     icon: React.ReactNode;
-    panelFn: (selectedAyah: Ayah) => React.ReactNode;
+    panelFn: (callbacks: { onClose: () => void }) => React.ReactNode;
 }
 
 export interface QuranReaderUtilitiesConfig {
@@ -32,22 +32,27 @@ export function createQuranReaderUtilitiesConfig(): QuranReaderUtilitiesConfig {
             read: {
                 label: 'Read',
                 icon: <Volume2Icon className="size-4" />,
-                panelFn: (selectedAyah) => (
-                    <QuranAyahReader selectedAyah={selectedAyah} />
+                panelFn: ({ onClose }) => (
+                    <QuranAyahReader />
                 ),
+            },
+            recite: {
+                label: 'Recite',
+                icon: <AudioLines className="size-4" />,
+                panelFn: () => <></>,
             },
             tafsir: {
                 label: 'Tafsir',
                 icon: <BookOpenIcon className="size-4" />,
-                panelFn: (selectedAyah) => (
-                    <TafsirUtility selectedAyah={selectedAyah} />
+                panelFn: ({ onClose }) => (
+                    <TafsirUtility onClose={onClose} />
                 ),
             },
             note: {
                 label: 'Note',
                 icon: <StickyNoteIcon className="size-4" />,
-                panelFn: (selectedAyah) => (
-                    <NoteUtility selectedAyah={selectedAyah} />
+                panelFn: ({ onClose }) => (
+                    <NoteUtility onClose={onClose} />
                 ),
             },
         },

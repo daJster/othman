@@ -1,13 +1,7 @@
 import { createQuranPageScaleConfig } from '@/data/configData';
 import { useQuranReader } from '@/hooks/use-quran-reader';
 import type { EditionBboxesReversed } from '@/providers';
-
-export interface Ayah {
-    pageKey: number;
-    ayahKey: string;
-    surah: number;
-    absoluteNumber: number;
-}
+import type { Ayah } from '@/providers/QuranReaderProvider';
 
 interface AyahOverlayProps {
     pageKey: number;

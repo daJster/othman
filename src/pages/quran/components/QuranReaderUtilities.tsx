@@ -1,18 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { createContext, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     createQuranReaderUtilitiesConfig,
 } from './utilities/utilitiesConfig';
-import type { Ayah } from './AyahOverlay';
+import { useQuranReader } from '@/hooks/use-quran-reader';
 
-export interface QuranReaderUtilitiesProps {
-    selectedAyah: Ayah | null;
-    className?: string;
+interface UtilityContextValue {
+    reopen: () => void;
 }
+
+const UtilityContext = createContext<UtilityContextValue | null>(null);
 
 const panelVariants = {
     hidden: { opacity: 0, y: 8 },
@@ -20,15 +21,25 @@ const panelVariants = {
     exit: { opacity: 0, y: -8 },
 };
 
-export function QuranReaderUtilities({
-    selectedAyah,
-}: QuranReaderUtilitiesProps) {
+export function QuranReaderUtilities() {
+    const { nav } = useQuranReader();
     const config = createQuranReaderUtilitiesConfig();
-    const [activeKey, setActiveKey] = useState<string>(config.defaultUtility);
+    const [activeKey, setActiveKey] = useState<string | null>(null);
 
     const handleUtilityChange = (key: string) => {
-        setActiveKey(key);
+        if (activeKey === key) {
+            setActiveKey(null);
+        } else {
+            setActiveKey(key);
+        }
     };
+
+    const handleReopen = useCallback(() => {
+        if (activeKey) {
+            setActiveKey(null);
+            requestAnimationFrame(() => setActiveKey(activeKey));
+        }
+    }, [activeKey]);
 
     const activeConfigKey =
         Object.keys(config.utilities).find((u) => u === activeKey) ??
@@ -37,7 +48,7 @@ export function QuranReaderUtilities({
 
     return (
         <AnimatePresence mode="wait">
-            {selectedAyah ? (
+            {nav?.currentAyah ? (
                 <>
                     <motion.div
                         key="utilities-container"
@@ -83,7 +94,13 @@ export function QuranReaderUtilities({
                             }}
                             className="w-full max-w-2xl"
                         >
-                            {activeConfig?.panelFn(selectedAyah)}
+                            <UtilityContext.Provider value={{ reopen: handleReopen }}>
+                                {activeKey && activeConfig
+                                    ? activeConfig.panelFn({
+                                          onClose: () => setActiveKey(null),
+                                      })
+                                    : null}
+                            </UtilityContext.Provider>
                         </motion.div>
                     </div>
                 </>

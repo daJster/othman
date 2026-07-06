@@ -17,6 +17,7 @@ import {
 import { useTheme } from '@/hooks/use-theme';
 import { CircleXIcon } from 'lucide-react';
 import {
+    ALQURAN_API_BASE_URL,
     ALQURAN_CDN_BASE_URL,
     CDN_BASE_URL,
     createShaykhListConfig,
@@ -26,14 +27,31 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { fetchAudio, fetchJSON } from '@/lib/utils';
-import type { Ayah } from '@/pages/quran/components/AyahOverlay';
 
-// ─── Navigation State ───────────────────────────────────────────────────────────
+export interface Ayah {
+    pageKey: number;
+    ayahKey: string;
+    surah: number;
+    absoluteNumber: number;
+    
+}
+
+export type AyahContent = {
+    text: string;
+    numberInSurah: number;
+    juz: number;
+    manzil: number;
+    page: number;
+    ruku: number;
+    hizbQuarter: number;
+    sajda: boolean;
+}
 
 export interface QuranReaderNav {
     currentPage: number;
     currentSurah: number;
     currentAyah: Ayah | null;
+    currentAyahContent: AyahContent | null;
     goToPage: (page: number) => void;
     goToSurah: (surah: number, ayah?: number) => void;
     goToAyah: (surah: number, ayah: number) => void;
@@ -119,6 +137,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [currentSurah, setCurrentSurah] = useState(1);
     const [currentAyah, setCurrentAyah] = useState<Ayah | null>(null);
+    const [currentAyahContent, setCurrentAyahContent] = useState<AyahContent | null>(null);
 
     const editionRef = useRef<QuranEdition | null>(null);
 
@@ -150,10 +169,16 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
                 const edition = editionsData[resolvedKey];
                 setProgress(25);
 
+                await switchEditionInner(
+                    resolvedKey,
+                    edition
+                );
+
                 const { BBpage } = await switchEditionInner(
                     resolvedKey,
                     edition
                 );
+                setProgress(25);
 
                 const lastVisitedPage = Number(
                     localStorage.getItem(PAGE_STORAGE_KEY)
@@ -166,8 +191,18 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
                         : edition.first_page;
                 setCurrentPage(resolvedCurrentPage);
 
-                // Derive surah/ayah from bboxPage for start page
-                syncSurahAyahFromPage(resolvedCurrentPage, BBpage!);
+                if (BBpage) {
+                    const pageData = BBpage[String(resolvedCurrentPage)];
+                    if (pageData) {
+                        const firstAyahKey = Object.keys(pageData.ayat)[0];
+                        if (firstAyahKey) {
+                            const firstAyah = pageData.ayat[firstAyahKey];
+                            setCurrentSurah(firstAyah.surah);
+                        }
+                    }
+                }
+
+                setProgress(100);
             } catch (err) {
                 setError(err instanceof Error ? err : new Error(String(err)));
             } finally {
@@ -177,19 +212,6 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
 
         boot();
     }, []);
-
-    const syncSurahAyahFromPage = useCallback(
-        (page: number, bboxPage: EditionBboxesReversed) => {
-            const pageData = bboxPage[String(page)];
-            if (!pageData) return;
-            const firstAyahKey = Object.keys(pageData.ayat)[0];
-            if (!firstAyahKey) return;
-            const firstAyah = pageData.ayat[firstAyahKey];
-            setCurrentSurah(firstAyah.surah);
-            setCurrentAyah(null);
-        },
-        []
-    );
 
     // ── Image preloading ─────────────────────────────────────────────────────────
     useEffect(() => {
@@ -214,58 +236,100 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const goToPage = useCallback((page: number) => {
         const edition = editionRef.current;
-        if (!edition) return;
+        if (!edition || !bboxesPerPage) return;
         const safePage = Math.max(
             edition.first_page,
             Math.min(edition.last_page, page)
         );
+        const pageData = bboxesPerPage[String(safePage)];
+        if (!pageData) return;
+        const firstAyahKey = Object.keys(pageData.ayat)[0];
+        if (!firstAyahKey) return;
+        const firstAyah = pageData.ayat[firstAyahKey];
         setCurrentPage(safePage);
-    }, []);
+        setCurrentSurah(firstAyah.surah);
+    }, [bboxesPerPage]);
 
     const goNextPage = useCallback(() => {
-        setCurrentPage((p) => {
-            const edition = editionRef.current;
-            if (!edition) return p;
-            const next = Math.min(p + 1, edition.last_page);
-            return next;
-        });
-    }, []);
+        const edition = editionRef.current;
+        if (!edition || !bboxesPerPage) return;
+        const next = Math.min(currentPage + 1, edition.last_page);
+        const pageData = bboxesPerPage[String(next)];
+        if (!pageData) return;
+        const firstAyahKey = Object.keys(pageData.ayat)[0];
+        if (!firstAyahKey) return;
+        const firstAyah = pageData.ayat[firstAyahKey];
+        setCurrentPage(next);
+        setCurrentSurah(firstAyah.surah);
+    }, [bboxesPerPage, currentPage]);
 
     const goPrevPage = useCallback(() => {
-        setCurrentPage((p) => {
-            const edition = editionRef.current;
-            if (!edition) return p;
-            const prev = Math.max(p - 1, edition.first_page);
-            return prev;
-        });
-    }, []);
+        const edition = editionRef.current;
+        if (!edition || !bboxesPerPage) return;
+        const prev = Math.max(currentPage - 1, edition.first_page);
+        const pageData = bboxesPerPage[String(prev)];
+        if (!pageData) return;
+        const firstAyahKey = Object.keys(pageData.ayat)[0];
+        if (!firstAyahKey) return;
+        const firstAyah = pageData.ayat[firstAyahKey];
+        setCurrentPage(prev);
+        setCurrentSurah(firstAyah.surah);
+    }, [bboxesPerPage, currentPage]);
 
     /**
      * Navigate to the first page containing the first ayah of a surah.
      * Optionally supply an ayah number to land closer to that ayah.
      */
     const goToAyah = useCallback(
-        (surah: number, ayah: number) => {
+        async (surah: number, ayah: number) => {
             if (!bboxesPerSurah) return;
             const surahData = bboxesPerSurah.surahs[`${surah}`];
             if (!surahData) return;
             const ayahData = surahData.ayat[`${ayah}`];
             if (!ayahData) return;
-            goToPage(ayahData.page_num);
-            setCurrentAyah({
-                pageKey: ayahData.page_num,
-                ayahKey: `${ayah}`,
-                surah,
-                absoluteNumber: ayahData.absolute_number,
-            });
+
+            const pageNum = ayahData.page_num;
+            const absoluteNumber = ayahData.absolute_number;
+            try {
+                const resp = await fetchJSON<{code:number, status: string, data: AyahContent}>(`${ALQURAN_API_BASE_URL}/v1/ayah/${absoluteNumber}`);
+                setCurrentPage(pageNum);
+                setCurrentSurah(surah);
+                setCurrentAyah({
+                    pageKey: pageNum,
+                    ayahKey: `${ayah}`,
+                    surah,
+                    absoluteNumber
+                });
+                setCurrentAyahContent({
+                    text: resp.data.text,
+                    numberInSurah: resp.data.numberInSurah,
+                    juz: resp.data.juz,
+                    manzil: resp.data.manzil,
+                    page: resp.data.page,
+                    ruku: resp.data.ruku,
+                    hizbQuarter: resp.data.hizbQuarter,
+                    sajda: resp.data.sajda,
+                });
+            } catch {
+                setCurrentPage(pageNum);
+                setCurrentSurah(surah);
+                setCurrentAyah({
+                    pageKey: pageNum,
+                    ayahKey: `${ayah}`,
+                    surah,
+                    absoluteNumber,
+                });
+                setCurrentAyahContent(null);
+            }
         },
-        [bboxesPerSurah, goToPage]
+        [bboxesPerSurah]
     );
 
     const goToAbsoluteAyah = useCallback(
         (absoluteAyah: number | null) => {
             if (!absoluteAyah) {
                 setCurrentAyah(null);
+                setCurrentAyahContent(null);
                 return;
             }
 
@@ -380,6 +444,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             currentPage,
             currentSurah,
             currentAyah,
+            currentAyahContent,
             goToPage,
             goToSurah,
             goToAyah,
@@ -395,6 +460,7 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             currentPage,
             currentSurah,
             currentAyah,
+            currentAyahContent,
             goToPage,
             goToSurah,
             goToAyah,
@@ -482,3 +548,4 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
         </QuranReaderContext.Provider>
     );
 };
+

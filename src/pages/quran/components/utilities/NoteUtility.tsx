@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StickyNoteIcon, Send, Info } from 'lucide-react';
-import type { Ayah } from '../AyahOverlay';
+import { useQuranReader } from '@/hooks/use-quran-reader';
 import mockNotes from '@/data/mock/mockQuranNotes.json';
 
 interface QuranNote {
@@ -25,29 +25,32 @@ interface QuranNote {
 }
 
 interface NoteUtilityProps {
-    selectedAyah: Ayah;
+    onClose: () => void;
 }
 
-export function NoteUtility({ selectedAyah }: NoteUtilityProps) {
+export function NoteUtility({ onClose }: NoteUtilityProps) {
+    const { nav } = useQuranReader();
+    const currentAyah = nav?.currentAyah;
     const [open, setOpen] = useState(true);
     const [notes, setNotes] = useState<QuranNote[]>(mockNotes.notes);
     const [newNote, setNewNote] = useState('');
 
     const filteredNotes = useMemo(() => {
+        if (!currentAyah) return [];
         return notes.filter(
             (note) =>
-                note.surah === selectedAyah.surah &&
-                note.ayah === selectedAyah.absoluteNumber
+                note.surah === currentAyah.surah &&
+                note.ayah === currentAyah.absoluteNumber
         );
-    }, [notes, selectedAyah]);
+    }, [notes, currentAyah]);
 
     const handlePostNote = () => {
-        if (!newNote.trim()) return;
+        if (!newNote.trim() || !currentAyah) return;
 
         const note: QuranNote = {
             id: Date.now().toString(),
-            surah: selectedAyah.surah,
-            ayah: selectedAyah.absoluteNumber,
+            surah: currentAyah.surah,
+            ayah: currentAyah.absoluteNumber,
             person: {
                 name: 'Jad',
                 avatar: 'JE',
@@ -70,8 +73,15 @@ export function NoteUtility({ selectedAyah }: NoteUtilityProps) {
         });
     };
 
+    if (!currentAyah) return null;
+
     return (
-        <Sheet open={open} onOpenChange={setOpen}>
+        <Sheet open={open} onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            if (!isOpen) {
+                onClose();
+            }
+        }}>
             <SheetContent
                 side="right"
                 className="w-full sm:w-[400px] flex flex-col p-0 border-neutral-300/50"

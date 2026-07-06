@@ -5,7 +5,7 @@ import { QuranPage, type PageDirection } from './components/QuranPage';
 import { QuranReaderNavbar } from './components/QuranReaderNavbar';
 import { QuranReaderFooter } from './components/QuranReaderFooter';
 import { QuranReaderUtilities } from './components/QuranReaderUtilities';
-import type { Ayah } from './components/AyahOverlay';
+import type { Ayah } from '@/providers/QuranReaderProvider';
 
 export const QuranReaderPage = () => {
     const { nav, selectedEdition } = useQuranReader();
@@ -138,7 +138,7 @@ export const QuranReaderPage = () => {
                     className="pointer-events-auto"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <QuranReaderUtilities selectedAyah={nav.currentAyah} />
+                    <QuranReaderUtilities />
                 </div>
             </div>
         </div>
