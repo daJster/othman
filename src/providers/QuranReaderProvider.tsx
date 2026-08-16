@@ -365,13 +365,13 @@ export const QuranReaderProvider: React.FC<{ children: React.ReactNode }> = ({
             setCurrentPage(edition.first_page);
 
             const bboxSurahPromise = fetchJSON<EditionBboxes>(
-                edition.bbox_url
+                edition.bbox_norm_url
             ).then((d) => {
                 setProgress(25 + Math.round(0.5 * 75));
                 return d;
             });
             const bboxPagePromise = fetchJSON<EditionBboxesReversed>(
-                edition.bbox_reversed_url
+                edition.bbox_reversed_norm_url
             ).then((d) => {
                 setProgress(25 + Math.round(1 * 75));
                 return d;

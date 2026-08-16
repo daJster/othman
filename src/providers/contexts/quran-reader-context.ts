@@ -18,6 +18,8 @@ export type QuranEdition = {
     base_url: string;
     bbox_url: string;
     bbox_reversed_url: string;
+    bbox_norm_url: string;
+    bbox_reversed_norm_url: string;
     first_page: number;
     last_page: number;
     theme_color: string;

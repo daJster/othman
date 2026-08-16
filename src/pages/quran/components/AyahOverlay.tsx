@@ -17,36 +17,26 @@ export function AyahOverlay({
     onAyahSelect,
 }: AyahOverlayProps) {
     const { selectedEdition } = useQuranReader();
-    const quranPageScaleConfig = createQuranPageScaleConfig();
-
     const pageSize = selectedEdition
-        ? quranPageScaleConfig[selectedEdition.name]?.size
+        ? createQuranPageScaleConfig()[selectedEdition.name]?.size
         : null;
 
-    const pageScaleKey =
-        selectedEdition &&
-        quranPageScaleConfig[selectedEdition.name].pages?.[pageKey]
-            ? pageKey
-            : 'default';
-
-    const { scaleX, scaleY, offsetX, offsetY } = selectedEdition
-        ? quranPageScaleConfig[selectedEdition.name].pages[pageScaleKey]
-        : { scaleX: 1, scaleY: 1, offsetX: 0, offsetY: 0 }; // falback
+    if (!pageSize) return null;
 
     return (
         <div
             className="absolute pointer-events-none"
             style={{
-                height: pageSize?.height,
-                width: pageSize?.width,
+                height: pageSize.height,
+                width: pageSize.width,
             }}
         >
             {Object.entries(ayat).map(([ayahKey, ayah]) =>
                 ayah.bboxes.map((bbox, bboxIdx) => {
-                    const left = bbox.left * scaleX + offsetX;
-                    const top = bbox.top * scaleY + offsetY;
-                    const width = (bbox.right - bbox.left) * scaleX;
-                    const height = (bbox.bottom - bbox.top) * scaleY;
+                    const left = bbox.left * pageSize.width;
+                    const top = bbox.top * pageSize.height;
+                    const width = (bbox.right - bbox.left) * pageSize.width;
+                    const height = (bbox.bottom - bbox.top) * pageSize.height;
                     const isSelected = ayahKey === selectedAyahKey;
 
                     return (
