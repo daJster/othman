@@ -1,5 +1,5 @@
-import type { AccountData, AuthUser } from '@/core/types';
-import type { UserRole } from '@/core/types/user';
+import type { AccountData, AuthUser } from "@/platform/logic/types";
+import type { UserRole } from "@/platform/logic/types/user";
 
 export interface AccountProfile {
   role?: UserRole | null;
@@ -12,7 +12,7 @@ export interface AccountProfile {
 
 export function mergeAuthWithProfile(
   authUser: AuthUser,
-  profile: AccountProfile | null
+  profile: AccountProfile | null,
 ): AccountData {
   const safeProfile = profile ?? {};
 

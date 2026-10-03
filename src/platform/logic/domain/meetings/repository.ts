@@ -1,8 +1,5 @@
-import type { Meeting } from '@/core/types';
-import {
-  getMeetingsFromCache,
-  setMeetingsCache,
-} from './cache';
+import type { Meeting } from "@/platform/logic/types";
+import { getMeetingsFromCache, setMeetingsCache } from "./cache";
 
 export type FetchMeetingsFn = (dateKey: string) => Promise<Meeting[]>;
 
@@ -13,7 +10,7 @@ export async function fetchMeetingsForDate(
   dateKey: string,
   fetchMeetings: FetchMeetingsFn,
   onSuccess?: FetchMeetingsSuccessCallback,
-  onError?: FetchMeetingsErrorCallback
+  onError?: FetchMeetingsErrorCallback,
 ): Promise<Meeting[]> {
   const cached = getMeetingsFromCache(dateKey);
   if (cached !== undefined) {
@@ -27,7 +24,8 @@ export async function fetchMeetingsForDate(
     onSuccess?.(meetings);
     return meetings;
   } catch (error) {
-    const err = error instanceof Error ? error : new Error('Failed to fetch meetings');
+    const err =
+      error instanceof Error ? error : new Error("Failed to fetch meetings");
     onError?.(err);
     throw err;
   }

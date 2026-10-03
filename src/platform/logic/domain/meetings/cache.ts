@@ -1,4 +1,4 @@
-import type { Meeting } from '@/core/types';
+import type { Meeting } from "@/platform/logic/types";
 
 const MAX_CACHE_SIZE = 24;
 

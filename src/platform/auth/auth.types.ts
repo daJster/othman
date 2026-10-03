@@ -1,10 +1,10 @@
-import type { AuthResult, AuthUser, Unsubscribe } from '@/core/types';
+import type { AuthResult, AuthUser, Unsubscribe } from "@/platform/logic/types";
 
 export interface AuthService {
   getCurrentUser(): Promise<AuthUser | null>;
   onAuthStateChanged(
     listener: (user: AuthUser | null) => void,
-    onError?: (error: Error) => void
+    onError?: (error: Error) => void,
   ): Unsubscribe;
 
   signInWithEmail(email: string, password: string): Promise<AuthResult>;
